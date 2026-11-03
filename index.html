@@ -2,561 +2,650 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="theme-color" content="#101827">
-  <title>WebAR ปฐมพยาบาลแผลไฟไหม้</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>WebAR ปฐมพยาบาลแผลไฟไหม้</title>
 
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-  <style>
-    * { box-sizing: border-box; }
+<style>
+* { box-sizing: border-box; }
 
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: system-ui, sans-serif;
-      color: white;
-      background: transparent !important;
-      touch-action: none;
-    }
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: system-ui, sans-serif;
+  touch-action: none;
+  color: white;
+}
 
-    a-scene {
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      z-index: 1;
-      background: transparent !important;
-    }
+a-scene {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1;
+  background: transparent !important;
+}
 
-    a-scene canvas {
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      background: transparent !important;
-      touch-action: none !important;
-      z-index: 2;
-    }
+a-scene canvas {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  touch-action: none !important;
+}
 
-    video {
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      object-fit: cover !important;
-      z-index: 0 !important;
-    }
+video {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  z-index: 0 !important;
+}
 
-    #start {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      display: grid;
-      place-items: center;
-      padding: 22px;
-      background: linear-gradient(145deg, #10243a, #1b3953);
-      text-align: center;
-    }
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: linear-gradient(145deg,#10243a,#1b3953);
+  text-align: center;
+}
 
-    .panel {
-      width: 100%;
-      max-width: 460px;
-      padding: 25px;
-      border: 1px solid #ffffff35;
-      border-radius: 22px;
-      background: #ffffff12;
-      box-shadow: 0 18px 55px #0005;
-    }
+.panel {
+  width: 100%;
+  max-width: 440px;
+  padding: 25px;
+  border: 1px solid #ffffff35;
+  border-radius: 20px;
+  background: #ffffff12;
+}
 
-    h1 { margin: 0 0 10px; font-size: 25px; }
-    p { line-height: 1.65; color: #e5eef7; }
+h2 { margin-top: 0; }
 
-    button {
-      border: 0;
-      border-radius: 13px;
-      padding: 12px 17px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      color: white;
-      background: #dc3e36;
-    }
+button {
+  color: white;
+  background: #18334e;
+  border: 1px solid #ffffff55;
+  border-radius: 12px;
+  padding: 11px 15px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+}
 
-    button:disabled { opacity: .55; cursor: wait; }
+button:active {
+  background: #dc3e36;
+}
 
-    #startBtn { width: 100%; margin-top: 8px; }
+#startBtn {
+  width: 100%;
+  background: #dc3e36;
+  margin-top: 10px;
+}
 
-    #status {
-      min-height: 42px;
-      margin-top: 13px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: #dbeafe;
-      overflow-wrap: anywhere;
-    }
+#status {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
 
-    #hint {
-      position: fixed;
-      z-index: 10;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      display: none;
-      padding: 10px 13px;
-      border-radius: 12px;
-      text-align: center;
-      background: #14283be8;
-      font-size: 13px;
-      pointer-events: none;
-    }
+#hint {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  top: 12px;
+  left: 10px;
+  right: 10px;
+  padding: 10px;
+  text-align: center;
+  border-radius: 12px;
+  background: #14283bea;
+  font-size: 13px;
+  pointer-events: none;
+}
 
-    #hud {
-      position: fixed;
-      z-index: 11;
-      left: 12px;
-      right: 12px;
-      bottom: 14px;
-      display: none;
-      justify-content: center;
-      gap: 10px;
-      pointer-events: none;
-      flex-wrap: wrap;
-    }
+#modelStatus {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  top: 57px;
+  left: 10px;
+  right: 10px;
+  text-align: center;
+  font-size: 12px;
+  pointer-events: none;
+}
 
-    #hud button {
-      pointer-events: auto;
-      background: #172b43ee;
-      border: 1px solid #ffffff55;
-    }
+#controls {
+  display: none;
+  position: fixed;
+  z-index: 20;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+}
 
-    #modelStatus {
-      position: fixed;
-      z-index: 9;
-      top: 58px;
-      left: 12px;
-      right: 12px;
-      text-align: center;
-      font-size: 12px;
-      color: #dbeafe;
-      pointer-events: none;
-      display: none;
-    }
-  </style>
+.control-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.control-row button {
+  min-width: 48px;
+  min-height: 43px;
+  background: #142b43ed;
+  box-shadow: 0 2px 8px #0005;
+}
+
+.control-row .wide {
+  min-width: 110px;
+}
+
+#controls button {
+  touch-action: manipulation;
+}
+
+#zoomValue {
+  font-size: 12px;
+  background: #14283bea;
+  border-radius: 10px;
+  padding: 7px 12px;
+}
+</style>
 </head>
 
 <body>
 
-  <div id="start">
-    <div class="panel">
-      <h1>WebAR ปฐมพยาบาลแผลไฟไหม้</h1>
-      <p>
-        สแกนโปสเตอร์เพื่อแสดงโมเดล 3 มิติ<br>
-        ลากเพื่อหมุน และใช้ 2 นิ้วเพื่อซูม
-      </p>
-      <button id="startBtn">เริ่มสแกนโปสเตอร์</button>
-      <div id="status">
-        กดปุ่มเพื่อเริ่มกล้อง และอนุญาตการใช้กล้อง
-      </div>
-    </div>
+<div id="start">
+  <div class="panel">
+    <h2>WebAR ปฐมพยาบาลแผลไฟไหม้</h2>
+    <p>
+      สแกนโปสเตอร์เพื่อแสดงโมเดล 3 มิติ<br>
+      สามารถหมุนและซูมโมเดลได้รอบทิศทาง
+    </p>
+    <button id="startBtn">เริ่มสแกนโปสเตอร์</button>
+    <div id="status">กดเริ่มสแกนและอนุญาตให้ใช้กล้อง</div>
+  </div>
+</div>
+
+<div id="hint">ส่องกล้องไปที่โปสเตอร์ปฐมพยาบาล</div>
+<div id="modelStatus">กำลังโหลดโมเดล 3 มิติ...</div>
+
+<div id="controls">
+
+  <div class="control-row">
+    <button data-action="up">▲</button>
   </div>
 
-  <div id="hint">
-    ลากเพื่อหมุนโมเดล • ใช้ 2 นิ้วถ่างหรือหุบเพื่อซูม
+  <div class="control-row">
+    <button data-action="left">◀</button>
+    <button data-action="down">▼</button>
+    <button data-action="right">▶</button>
   </div>
 
-  <div id="modelStatus">กำลังโหลดโมเดล 3 มิติ…</div>
-
-  <div id="hud">
-    <button id="resetBtn">รีเซ็ตมุมมอง</button>
-    <button id="stopBtn">ปิดกล้อง</button>
+  <div class="control-row">
+    <button data-action="tiltLeft">↶ เอียง</button>
+    <button data-action="tiltRight">เอียง ↷</button>
   </div>
 
-  <a-scene
-    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes; uiLoading: yes;"
-    color-space="sRGB"
-    embedded
-    renderer="alpha: true; colorManagement: true; physicallyCorrectLights: true; antialias: true"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
+  <div class="control-row">
+    <button data-action="zoomOut">− ซูม</button>
+    <span id="zoomValue">100%</span>
+    <button data-action="zoomIn">+ ซูม</button>
+  </div>
 
-    <a-assets timeout="60000">
-      <a-asset-item id="burnModel" src="./base_basic_pbr.glb"></a-asset-item>
-    </a-assets>
+  <div class="control-row">
+    <button class="wide" id="resetBtn">รีเซ็ตมุมมอง</button>
+    <button class="wide" id="stopBtn">ปิดกล้อง</button>
+  </div>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+</div>
 
-    <a-entity id="posterTarget" mindar-image-target="targetIndex: 0">
+<a-scene
+  mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes; uiLoading: yes;"
+  color-space="sRGB"
+  embedded
+  renderer="alpha: true; colorManagement: true; physicallyCorrectLights: true; antialias: true"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false">
+
+  <a-assets timeout="60000">
+    <a-asset-item
+      id="burnModel"
+      src="./base_basic_pbr.glb">
+    </a-asset-item>
+  </a-assets>
+
+  <a-camera
+    position="0 0 0"
+    look-controls="enabled: false">
+  </a-camera>
+
+  <a-entity
+    id="posterTarget"
+    mindar-image-target="targetIndex: 0">
+
+    <a-entity
+      id="modelRoot"
+      position="0 0.05 0.05"
+      rotation="0 0 0"
+      scale="0.42 0.42 0.42">
 
       <a-entity
-        id="modelRoot"
-        position="0 0.05 0.05"
-        rotation="0 0 0"
-        scale="0.42 0.42 0.42">
-
-        <a-entity
-          id="modelMesh"
-          gltf-model="#burnModel"
-          position="0 -0.217 0"
-          rotation="90 0 0">
-        </a-entity>
-
+        id="modelMesh"
+        gltf-model="#burnModel"
+        position="0 -0.217 0"
+        rotation="90 0 0">
       </a-entity>
+
     </a-entity>
-  </a-scene>
+  </a-entity>
+</a-scene>
 
-  <script>
-    (() => {
-      const scene = document.querySelector("a-scene");
-      const startLayer = document.getElementById("start");
-      const startBtn = document.getElementById("startBtn");
-      const status = document.getElementById("status");
-      const hint = document.getElementById("hint");
-      const modelStatus = document.getElementById("modelStatus");
-      const hud = document.getElementById("hud");
+<script>
+(() => {
 
-      const targetEl = document.getElementById("posterTarget");
-      const root = document.getElementById("modelRoot");
-      const modelMesh = document.getElementById("modelMesh");
+  const scene = document.querySelector("a-scene");
+  const target = document.getElementById("posterTarget");
+  const root = document.getElementById("modelRoot");
+  const mesh = document.getElementById("modelMesh");
 
-      let cameraStarted = false;
-      let targetFound = false;
-      let modelLoaded = false;
+  const startLayer = document.getElementById("start");
+  const startBtn = document.getElementById("startBtn");
+  const status = document.getElementById("status");
+  const hint = document.getElementById("hint");
+  const modelStatus = document.getElementById("modelStatus");
+  const controls = document.getElementById("controls");
+  const zoomValue = document.getElementById("zoomValue");
 
-      // ค่าการหมุนและซูม
-      let rotationX = 0;
-      let rotationY = 0;
-      let zoom = 0.42;
+  let cameraStarted = false;
+  let targetFound = false;
+  let modelLoaded = false;
 
-      const MIN_ZOOM = 0.18;
-      const MAX_ZOOM = 1.05;
-      const ROTATE_SPEED = 0.5;
-      const BASE_SCALE = 0.42;
+  // ค่ามุมหมุน 3 แกน
+  let rotX = 0;
+  let rotY = 0;
+  let rotZ = 0;
 
-      // เก็บตำแหน่งนิ้ว/เมาส์ที่กำลังสัมผัส
-      const pointers = new Map();
+  // ค่าซูม
+  const BASE_ZOOM = 0.42;
+  let zoom = BASE_ZOOM;
 
-      let lastX = 0;
-      let lastY = 0;
-      let lastPinchDistance = 0;
+  const MIN_ZOOM = 0.15;
+  const MAX_ZOOM = 1.30;
 
-      function updateModel() {
-        root.setAttribute(
-          "rotation",
-          `${rotationX} ${rotationY} 0`
+  // ความไวของการลาก
+  const ROTATE_SPEED = 0.7;
+
+  // เก็บนิ้วที่สัมผัสหน้าจอ
+  const pointers = new Map();
+
+  let previousX = 0;
+  let previousY = 0;
+  let previousDistance = 0;
+
+  function updateModel() {
+    root.setAttribute(
+      "rotation",
+      `${rotX} ${rotY} ${rotZ}`
+    );
+
+    root.setAttribute(
+      "scale",
+      `${zoom} ${zoom} ${zoom}`
+    );
+
+    zoomValue.textContent =
+      Math.round((zoom / BASE_ZOOM) * 100) + "%";
+  }
+
+  function resetModel() {
+    rotX = 0;
+    rotY = 0;
+    rotZ = 0;
+    zoom = BASE_ZOOM;
+    updateModel();
+  }
+
+  function waitForScene() {
+    return new Promise(resolve => {
+      if (scene.hasLoaded) {
+        resolve();
+      } else {
+        scene.addEventListener("loaded", resolve, { once: true });
+      }
+    });
+  }
+
+  mesh.addEventListener("model-loaded", () => {
+    modelLoaded = true;
+    modelStatus.textContent = "โมเดล 3 มิติพร้อมใช้งาน";
+    console.log("GLB loaded");
+  });
+
+  mesh.addEventListener("model-error", event => {
+    console.error("GLB error", event);
+    modelStatus.textContent = "โหลดโมเดลไม่สำเร็จ";
+  });
+
+  target.addEventListener("targetFound", () => {
+    targetFound = true;
+    hint.textContent = "ลากโมเดลเพื่อหมุน หรือใช้ปุ่มด้านล่าง";
+    controls.style.display = "flex";
+    modelStatus.style.display = "block";
+  });
+
+  target.addEventListener("targetLost", () => {
+    targetFound = false;
+    pointers.clear();
+    controls.style.display = "none";
+    modelStatus.style.display = "none";
+    hint.textContent = "ส่องกล้องไปที่โปสเตอร์ปฐมพยาบาล";
+  });
+
+  scene.addEventListener("arReady", () => {
+    status.textContent = "กล้องพร้อมแล้ว กำลังค้นหาโปสเตอร์...";
+  });
+
+  scene.addEventListener("arError", event => {
+    console.error("AR error", event);
+    showError("ระบบ AR เกิดข้อผิดพลาด กรุณาลองใหม่");
+  });
+
+  function showError(message) {
+    status.textContent = message;
+    startLayer.style.display = "grid";
+    startBtn.disabled = false;
+  }
+
+  function waitForVideo(timeout = 15000) {
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+
+      function check() {
+        const videos = [...document.querySelectorAll("video")];
+
+        const active = videos.find(v =>
+          v.videoWidth > 0 &&
+          v.videoHeight > 0 &&
+          v.readyState >= 2
         );
 
-        root.setAttribute(
-          "scale",
-          `${zoom} ${zoom} ${zoom}`
-        );
+        if (active) return resolve(active);
+
+        if (Date.now() - startTime > timeout) {
+          return reject(new Error("ยังไม่ได้รับภาพจากกล้อง"));
+        }
+
+        requestAnimationFrame(check);
       }
 
-      function resetView() {
-        rotationX = 0;
-        rotationY = 0;
-        zoom = BASE_SCALE;
+      check();
+    });
+  }
+
+  startBtn.addEventListener("click", async () => {
+    if (cameraStarted) return;
+
+    startBtn.disabled = true;
+    status.textContent = "กำลังเปิดกล้อง...";
+
+    try {
+      if (!window.isSecureContext) {
+        throw new Error("ต้องเปิดเว็บไซต์ผ่าน HTTPS");
+      }
+
+      await waitForScene();
+
+      const mindar = scene.systems["mindar-image-system"];
+
+      if (!mindar) {
+        throw new Error("ไม่พบระบบ MindAR");
+      }
+
+      await mindar.start();
+      await waitForVideo();
+
+      cameraStarted = true;
+      startLayer.style.display = "none";
+      hint.style.display = "block";
+
+    } catch (error) {
+      console.error(error);
+
+      try {
+        const mindar = scene.systems["mindar-image-system"];
+        if (mindar) await mindar.stop();
+      } catch (e) {
+        console.error(e);
+      }
+
+      cameraStarted = false;
+      showError("เปิดกล้องไม่สำเร็จ: " + error.message);
+
+    } finally {
+      startBtn.disabled = false;
+    }
+  });
+
+  // คำนวณระยะห่างระหว่างนิ้วสองนิ้ว
+  function getDistance() {
+    const p = [...pointers.values()];
+
+    if (p.length < 2) return 0;
+
+    const dx = p[0].x - p[1].x;
+    const dy = p[0].y - p[1].y;
+
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // รับการลากจากทั้งหน้าเว็บ ไม่ผูกกับ canvas อย่างเดียว
+  document.addEventListener("pointerdown", event => {
+
+    if (!targetFound) return;
+
+    if (event.target.closest("#controls")) return;
+
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+
+    pointers.set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY
+    });
+
+    if (pointers.size === 1) {
+      previousX = event.clientX;
+      previousY = event.clientY;
+    }
+
+    if (pointers.size === 2) {
+      previousDistance = getDistance();
+    }
+
+  }, true);
+
+  document.addEventListener("pointermove", event => {
+
+    if (!targetFound || !pointers.has(event.pointerId)) return;
+
+    event.preventDefault();
+
+    pointers.set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY
+    });
+
+    // ใช้สองนิ้วซูม
+    if (pointers.size >= 2) {
+
+      const newDistance = getDistance();
+
+      if (previousDistance > 0 && newDistance > 0) {
+
+        const difference = newDistance - previousDistance;
+
+        zoom += difference * 0.002;
+        zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+
         updateModel();
       }
 
-      function waitForScene() {
-        return new Promise(resolve => {
-          if (scene.hasLoaded) {
-            resolve();
-          } else {
-            scene.addEventListener("loaded", resolve, { once: true });
-          }
-        });
+      previousDistance = newDistance;
+      return;
+    }
+
+    // ใช้หนึ่งนิ้วหมุน 3 แกน
+    const dx = event.clientX - previousX;
+    const dy = event.clientY - previousY;
+
+    previousX = event.clientX;
+    previousY = event.clientY;
+
+    rotY += dx * ROTATE_SPEED;
+    rotX -= dy * ROTATE_SPEED;
+
+    updateModel();
+
+  }, { capture: true, passive: false });
+
+  function releasePointer(event) {
+
+    pointers.delete(event.pointerId);
+
+    if (pointers.size === 1) {
+      const p = [...pointers.values()][0];
+      previousX = p.x;
+      previousY = p.y;
+    }
+
+    previousDistance = pointers.size >= 2
+      ? getDistance()
+      : 0;
+  }
+
+  document.addEventListener("pointerup", releasePointer, true);
+  document.addEventListener("pointercancel", releasePointer, true);
+
+  // ปุ่มควบคุมบนหน้าจอ
+  document.querySelectorAll("[data-action]").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      if (!targetFound) return;
+
+      const action = button.dataset.action;
+      const step = 15;
+
+      switch (action) {
+
+        case "left":
+          rotY -= step;
+          break;
+
+        case "right":
+          rotY += step;
+          break;
+
+        case "up":
+          rotX -= step;
+          break;
+
+        case "down":
+          rotX += step;
+          break;
+
+        case "tiltLeft":
+          rotZ -= step;
+          break;
+
+        case "tiltRight":
+          rotZ += step;
+          break;
+
+        case "zoomIn":
+          zoom = Math.min(MAX_ZOOM, zoom + 0.05);
+          break;
+
+        case "zoomOut":
+          zoom = Math.max(MIN_ZOOM, zoom - 0.05);
+          break;
       }
 
-      function showError(message) {
-        console.error(message);
-        status.textContent = message;
-        startLayer.style.display = "grid";
-        startBtn.disabled = false;
-      }
+      updateModel();
+    });
 
-      modelMesh.addEventListener("model-loaded", () => {
-        modelLoaded = true;
-        modelStatus.textContent = "โหลดโมเดล 3 มิติแล้ว";
-        console.log("GLB loaded successfully");
-      });
+  });
 
-      modelMesh.addEventListener("model-error", event => {
-        console.error("GLB error:", event);
-        modelStatus.textContent = "โหลดโมเดลไม่สำเร็จ";
-        status.textContent = "ตรวจสอบไฟล์ base_basic_pbr.glb ใน GitHub";
-      });
+  // ซูมด้วยลูกกลิ้งเมาส์
+  document.addEventListener("wheel", event => {
 
-      targetEl.addEventListener("targetFound", () => {
-        targetFound = true;
-        hint.textContent = "พบโปสเตอร์แล้ว • ลากเพื่อหมุน • 2 นิ้วเพื่อซูม";
-        modelStatus.style.display = "block";
-        modelStatus.textContent = modelLoaded
-          ? "โหลดโมเดล 3 มิติแล้ว"
-          : "กำลังโหลดโมเดล 3 มิติ…";
-      });
+    if (!targetFound) return;
 
-      targetEl.addEventListener("targetLost", () => {
-        targetFound = false;
-        pointers.clear();
-        hint.textContent = "เล็งกล้องไปที่โปสเตอร์เพื่อแสดงโมเดล";
-        modelStatus.style.display = "none";
-      });
+    if (event.target.closest("#controls")) return;
 
-      scene.addEventListener("arReady", () => {
-        status.textContent = "กล้องพร้อมใช้งาน กำลังค้นหาโปสเตอร์…";
-      });
+    event.preventDefault();
 
-      scene.addEventListener("arError", event => {
-        console.error("MindAR error:", event);
-        showError("ระบบ AR เปิดกล้องไม่สำเร็จ กรุณาลองใหม่");
-      });
+    zoom -= event.deltaY * 0.001;
+    zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
 
-      function waitForCameraVideo(timeoutMs = 15000) {
-        return new Promise((resolve, reject) => {
-          const startedAt = Date.now();
+    updateModel();
 
-          function checkVideo() {
-            const videos = Array.from(document.querySelectorAll("video"));
+  }, { passive: false });
 
-            const activeVideo = videos.find(video =>
-              video.videoWidth > 0 &&
-              video.videoHeight > 0 &&
-              video.readyState >= 2
-            );
+  document.getElementById("resetBtn")
+    .addEventListener("click", resetModel);
 
-            if (activeVideo) {
-              resolve(activeVideo);
-              return;
-            }
+  document.getElementById("stopBtn")
+    .addEventListener("click", async () => {
 
-            if (Date.now() - startedAt >= timeoutMs) {
-              reject(new Error("เปิดระบบ AR แล้ว แต่ยังไม่ได้รับภาพจากกล้อง"));
-              return;
-            }
+      try {
+        const mindar = scene.systems["mindar-image-system"];
 
-            requestAnimationFrame(checkVideo);
-          }
-
-          checkVideo();
-        });
-      }
-
-      startBtn.addEventListener("click", async () => {
-        if (cameraStarted) return;
-
-        startBtn.disabled = true;
-        status.textContent = "กำลังเปิดกล้อง กรุณารอสักครู่…";
-
-        try {
-          if (!window.isSecureContext) {
-            throw new Error("เว็บไซต์ต้องเปิดผ่าน HTTPS เพื่อใช้งานกล้อง");
-          }
-
-          if (!navigator.mediaDevices ||
-              !navigator.mediaDevices.getUserMedia) {
-            throw new Error("เบราว์เซอร์ไม่รองรับการเปิดกล้อง");
-          }
-
-          await waitForScene();
-
-          const mindar = scene.systems["mindar-image-system"];
-
-          if (!mindar) {
-            throw new Error("ไม่พบระบบ MindAR กรุณารีเฟรชหน้าเว็บ");
-          }
-
-          await mindar.start();
-          await waitForCameraVideo(15000);
-
-          cameraStarted = true;
-          startLayer.style.display = "none";
-          hint.style.display = "block";
-          hud.style.display = "flex";
-
-        } catch (err) {
-          console.error("Camera start error:", err);
-
-          try {
-            const mindar = scene.systems["mindar-image-system"];
-            if (mindar) await mindar.stop();
-          } catch (stopError) {
-            console.error(stopError);
-          }
-
-          cameraStarted = false;
-
-          showError(
-            "เปิดกล้องไม่สำเร็จ: " +
-            (err.message || err.name || "Unknown error")
-          );
-
-        } finally {
-          startBtn.disabled = false;
+        if (mindar && cameraStarted) {
+          await mindar.stop();
         }
-      });
-
-      // คำนวณระยะห่างระหว่างนิ้ว 2 นิ้ว
-      function getPinchDistance() {
-        const points = Array.from(pointers.values());
-
-        if (points.length < 2) return 0;
-
-        const dx = points[0].x - points[1].x;
-        const dy = points[0].y - points[1].y;
-
-        return Math.sqrt(dx * dx + dy * dy);
+      } catch (error) {
+        console.error(error);
       }
 
-      function attachControls() {
-        const canvas = scene.canvas;
-        if (!canvas) return;
+      cameraStarted = false;
+      targetFound = false;
+      pointers.clear();
 
-        canvas.style.touchAction = "none";
+      resetModel();
 
-        canvas.addEventListener("pointerdown", event => {
-          if (!targetFound) return;
+      controls.style.display = "none";
+      hint.style.display = "none";
+      modelStatus.style.display = "none";
+      startLayer.style.display = "grid";
 
-          if (event.pointerType === "mouse" && event.button !== 0) {
-            return;
-          }
+      status.textContent = "ปิดกล้องแล้ว กดเริ่มสแกนเพื่อใช้งานอีกครั้ง";
+    });
 
-          pointers.set(event.pointerId, {
-            x: event.clientX,
-            y: event.clientY
-          });
+  updateModel();
 
-          if (pointers.size === 1) {
-            lastX = event.clientX;
-            lastY = event.clientY;
-          }
-
-          if (pointers.size === 2) {
-            lastPinchDistance = getPinchDistance();
-          }
-
-          try {
-            canvas.setPointerCapture(event.pointerId);
-          } catch (error) {
-            console.warn(error);
-          }
-        });
-
-        canvas.addEventListener("pointermove", event => {
-          if (!targetFound || !pointers.has(event.pointerId)) return;
-
-          pointers.set(event.pointerId, {
-            x: event.clientX,
-            y: event.clientY
-          });
-
-          // สองนิ้ว = ซูมเข้าออก
-          if (pointers.size >= 2) {
-            const newDistance = getPinchDistance();
-
-            if (lastPinchDistance > 0 && newDistance > 0) {
-              const difference = newDistance - lastPinchDistance;
-
-              zoom += difference * 0.002;
-              zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
-
-              updateModel();
-            }
-
-            lastPinchDistance = newDistance;
-            return;
-          }
-
-          // หนึ่งนิ้วหรือเมาส์ = หมุนได้ทั้งแนวนอนและแนวตั้ง
-          const dx = event.clientX - lastX;
-          const dy = event.clientY - lastY;
-
-          lastX = event.clientX;
-          lastY = event.clientY;
-
-          rotationY += dx * ROTATE_SPEED;
-          rotationX -= dy * ROTATE_SPEED;
-
-          // จำกัดการก้ม/เงย ไม่ให้พลิกค้าง
-          rotationX = Math.max(-180, Math.min(180, rotationX));
-
-          updateModel();
-        });
-
-        function releasePointer(event) {
-          pointers.delete(event.pointerId);
-
-          if (pointers.size === 1) {
-            const point = Array.from(pointers.values())[0];
-            lastX = point.x;
-            lastY = point.y;
-          }
-
-          lastPinchDistance = pointers.size >= 2
-            ? getPinchDistance()
-            : 0;
-        }
-
-        canvas.addEventListener("pointerup", releasePointer);
-        canvas.addEventListener("pointercancel", releasePointer);
-        canvas.addEventListener("lostpointercapture", releasePointer);
-
-        // ลูกกลิ้งเมาส์บนคอม = ซูม
-        canvas.addEventListener("wheel", event => {
-          if (!targetFound) return;
-
-          event.preventDefault();
-
-          zoom -= event.deltaY * 0.001;
-          zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
-
-          updateModel();
-        }, { passive: false });
-      }
-
-      scene.addEventListener("loaded", attachControls, { once: true });
-
-      if (scene.hasLoaded) {
-        attachControls();
-      }
-
-      document.getElementById("resetBtn")
-        .addEventListener("click", resetView);
-
-      document.getElementById("stopBtn")
-        .addEventListener("click", async () => {
-          try {
-            const mindar = scene.systems["mindar-image-system"];
-
-            if (mindar && cameraStarted) {
-              await mindar.stop();
-            }
-          } catch (err) {
-            console.error("Stop camera error:", err);
-          }
-
-          cameraStarted = false;
-          targetFound = false;
-          pointers.clear();
-
-          resetView();
-
-          hud.style.display = "none";
-          hint.style.display = "none";
-          modelStatus.style.display = "none";
-          startLayer.style.display = "grid";
-
-          status.textContent =
-            "ปิดกล้องแล้ว กดเริ่มสแกนเพื่อใช้งานอีกครั้ง";
-        });
-
-    })();
-  </script>
+})();
+</script>
 
 </body>
 </html>
