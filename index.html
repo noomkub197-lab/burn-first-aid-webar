@@ -751,7 +751,10 @@ function getModelHit(clientX, clientY) {
 
   raycaster.setFromCamera(pointerNdc, scene.camera);
 
-  const hits = raycaster.intersectObject(mesh.object3D, true);
+  const hits = raycaster.intersectObject(
+    mesh.object3D,
+    true
+  );
 
   for (const hit of hits) {
     if (!hit.uv || !hit.object || !hit.object.material) {
@@ -770,43 +773,26 @@ function getModelHit(clientX, clientY) {
 
     if (!data) continue;
 
-    // ใช้ UV ของจุดที่ Raycaster สัมผัสจริง
-    const uv = hit.uv.clone();
+    // ใช้ระบบแปลง UV ของ Three.js โดยตรง
+    // รองรับ Texture matrix, offset, repeat,
+    // wrapping และ flipY
     const map = data.originalMap;
+    const uv = hit.uv.clone();
 
-    // คำนวณ Texture matrix เพื่อรองรับ offset/repeat/rotation
-    if (map.matrixAutoUpdate) {
-      map.updateMatrix();
-    }
-
-    uv.applyMatrix3(map.matrix);
-
-    // จัดการ Texture wrapping
-    function applyWrap(value, mode) {
-      if (mode === THREE.RepeatWrapping) {
-        return value - Math.floor(value);
-      }
-
-      if (mode === THREE.MirroredRepeatWrapping) {
-        const tile = Math.floor(value);
-        const fraction = value - tile;
-
-        return Math.abs(tile % 2) === 1
-          ? 1 - fraction
-          : fraction;
-      }
-
-      return Math.max(0, Math.min(1, value));
-    }
-
-    const u = applyWrap(uv.x, map.wrapS);
-    const v = applyWrap(uv.y, map.wrapT);
+    map.updateMatrix();
+    map.transformUv(uv);
 
     return {
-      uv: { u, v },
+      uv: {
+        u: uv.x,
+        v: uv.y
+      },
       data,
       point: hit.point.clone(),
-      object: hit.object
+      object: hit.object,
+      normal: hit.face
+        ? hit.face.normal.clone()
+        : null
     };
   }
 
@@ -862,9 +848,7 @@ function stampBurn(data, uv, radius, strength) {
   const x = uv.u * data.width;
 
   // GLTFLoader ใช้ flipY=false กับ Texture จาก GLB
-  const y = data.originalMap.flipY
-    ? (1 - uv.v) * data.height
-    : uv.v * data.height;
+  const y = (1 - uv.v) * data.height;
 
   const r = Math.max(2, radius);
 
