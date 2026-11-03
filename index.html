@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>WebAR ปฐมพยาบาลแผลไฟไหม้</title>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: #101827; }
+    #start { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 24px; background: linear-gradient(145deg,#10243a,#1b3953); color: white; text-align: center; }
+    #start .panel { max-width: 440px; background: #ffffff12; border: 1px solid #ffffff30; border-radius: 22px; padding: 24px; }
+    #start h1 { margin: 0 0 10px; font-size: 25px; }
+    #start p { line-height: 1.65; color: #e5eef7; }
+    button { border: 0; border-radius: 14px; padding: 13px 20px; font-size: 16px; font-weight: 700; background: #ef4444; color: white; }
+    #start button { width: 100%; margin-top: 10px; }
+    #hud { position: fixed; z-index: 4; left: 12px; right: 12px; bottom: 14px; display: none; justify-content: center; align-items: center; gap: 10px; pointer-events: none; }
+    #hud button { pointer-events: auto; background: #172b43eF; border: 1px solid #ffffff55; padding: 10px 14px; }
+    #hint { position: fixed; z-index: 4; top: 12px; left: 12px; right: 12px; text-align: center; color: white; background: #14283bd9; border-radius: 12px; padding: 10px; font-size: 14px; display: none; }
+    #status { font-size: 13px; opacity: .9; margin-top: 12px; }
+    a-scene { position: fixed; inset: 0; }
+  </style>
+</head>
+<body>
+  <div id="start">
+    <div class="panel">
+      <h1>WebAR ปฐมพยาบาลแผลไฟไหม้</h1>
+      <p>สแกนโปสเตอร์ด้วยกล้อง แล้วดูโมเดลมือและแขน 3 มิติที่มีแผลไฟไหม้<br>ลากนิ้วบนหน้าจอเพื่อหมุนโมเดลได้ 360 องศา</p>
+      <button id="startBtn">เริ่มสแกนโปสเตอร์</button>
+      <div id="status">หมายเหตุ: ต้องสร้างไฟล์ targets.mind จากโปสเตอร์ก่อนใช้งาน</div>
+    </div>
+  </div>
+  <div id="hint">เล็งกล้องไปที่โปสเตอร์ • เมื่อตรวจพบแล้ว ลากนิ้วเพื่อหมุนโมเดล</div>
+  <div id="hud"><button id="resetBtn">รีเซ็ตมุมมอง</button><button id="stopBtn">ปิดกล้อง</button></div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes; uiLoading: yes;"
+    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true"
+    vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-assets>
+      <a-mixin id="skin" material="color: #d99a78; roughness: 0.72"></a-mixin>
+      <a-mixin id="burn" material="color: #a8322c; roughness: 0.82"></a-mixin>
+    </a-assets>
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-entity id="modelRoot" position="0 0.05 0.05" rotation="0 0 0" scale="0.62 0.62 0.62">
+        <!-- Forearm: tapered segments -->
+        <a-cylinder position="0 -0.02 0" rotation="0 0 90" radius="0.31" height="1.55" color="#d99a78" material="roughness: 0.78"></a-cylinder>
+        <a-sphere position="-0.79 0 0" scale="0.31 0.30 0.31" color="#d99a78"></a-sphere>
+        <!-- Palm and thumb -->
+        <a-sphere position="-1.10 0.03 0" scale="0.43 0.34 0.42" color="#e2aa88"></a-sphere>
+        <a-sphere position="-1.12 0.22 0.28" rotation="0 0 -35" scale="0.22 0.34 0.20" color="#e2aa88"></a-sphere>
+        <!-- Four fingers -->
+        <a-cylinder position="-1.49 0.19 -0.25" rotation="0 0 78" radius="0.085" height="0.52" color="#e2aa88"></a-cylinder>
+        <a-sphere position="-1.73 0.23 -0.25" scale="0.09 0.12 0.09" color="#e2aa88"></a-sphere>
+        <a-cylinder position="-1.53 0.25 -0.08" rotation="0 0 83" radius="0.085" height="0.58" color="#e2aa88"></a-cylinder>
+        <a-sphere position="-1.81 0.28 -0.08" scale="0.09 0.12 0.09" color="#e2aa88"></a-sphere>
+        <a-cylinder position="-1.52 0.25 0.10" rotation="0 0 86" radius="0.08" height="0.55" color="#e2aa88"></a-cylinder>
+        <a-sphere position="-1.79 0.28 0.10" scale="0.085 0.11 0.085" color="#e2aa88"></a-sphere>
+        <a-cylinder position="-1.47 0.20 0.26" rotation="0 0 92" radius="0.075" height="0.43" color="#e2aa88"></a-cylinder>
+        <a-sphere position="-1.67 0.22 0.26" scale="0.08 0.10 0.08" color="#e2aa88"></a-sphere>
+        <!-- Wrist seam -->
+        <a-torus position="-0.78 0 0" rotation="0 90 0" radius="0.305" radius-tubular="0.018" color="#bd8066"></a-torus>
+        <!-- Burn patch on top of forearm, raised red area -->
+        <a-sphere position="0.18 0.285 0.02" scale="0.43 0.055 0.28" color="#b83b32" material="roughness: 0.95"></a-sphere>
+        <a-sphere position="0.04 0.33 0.08" scale="0.13 0.045 0.10" color="#f0785e"></a-sphere>
+        <a-sphere position="0.23 0.34 -0.04" scale="0.11 0.05 0.09" color="#f4a078"></a-sphere>
+        <a-sphere position="0.36 0.33 0.08" scale="0.09 0.045 0.08" color="#e96a55"></a-sphere>
+        <a-sphere position="0.16 0.375 0.02" scale="0.07 0.045 0.065" color="#ffd0a5" material="opacity: 0.88; transparent: true"></a-sphere>
+        <a-sphere position="0.32 0.37 -0.10" scale="0.055 0.04 0.05" color="#ffd0a5" material="opacity: 0.88; transparent: true"></a-sphere>
+        <!-- Small educational label -->
+        <a-plane position="0.15 0.73 0" rotation="-90 0 0" width="1.55" height="0.28" color="#fff7ed" material="opacity: 0.94; transparent: true"></a-plane>
+        <a-text value="ตัวอย่างลักษณะแผลไฟไหม้" position="-0.57 0.75 0.01" rotation="-90 0 0" color="#7f1d1d" width="2.4" align="center"></a-text>
+      </a-entity>
+    </a-entity>
+  </a-scene>
+  <script>
+    const scene = document.querySelector('a-scene');
+    const startLayer = document.getElementById('start');
+    const hint = document.getElementById('hint');
+    const hud = document.getElementById('hud');
+    const root = document.getElementById('modelRoot');
+    const status = document.getElementById('status');
+    let yaw = 0, dragging = false, lastX = 0, targetFound = false;
+
+    document.getElementById('startBtn').addEventListener('click', async () => {
+      try {
+        if (!window.isSecureContext) throw new Error('ต้องเปิดผ่าน HTTPS หรือ localhost เพื่อใช้กล้อง');
+        startLayer.style.display = 'none';
+        hint.style.display = 'block';
+        hud.style.display = 'flex';
+        scene.systems['mindar-image-system'].start();
+      } catch (err) {
+        startLayer.style.display = 'grid';
+        status.textContent = 'เริ่มกล้องไม่สำเร็จ: ' + err.message;
+      }
+    });
+
+    scene.addEventListener('targetFound', () => { targetFound = true; hint.textContent = 'พบโปสเตอร์แล้ว • ลากนิ้วซ้าย–ขวาเพื่อหมุนโมเดล 360°'; });
+    scene.addEventListener('targetLost', () => { targetFound = false; hint.textContent = 'เล็งกล้องไปที่โปสเตอร์เพื่อแสดงโมเดล'; });
+
+    const canvas = () => scene.canvas;
+    function down(e) { if (!targetFound) return; dragging = true; lastX = e.clientX; }
+    function move(e) {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      lastX = e.clientX;
+      yaw += dx * 0.65;
+      root.setAttribute('rotation', `0 ${yaw} 0`);
+    }
+    function up() { dragging = false; }
+    document.addEventListener('pointerdown', down);
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+    document.addEventListener('pointercancel', up);
+    document.getElementById('resetBtn').addEventListener('click', () => { yaw = 0; root.setAttribute('rotation', '0 0 0'); });
+    document.getElementById('stopBtn').addEventListener('click', () => {
+      scene.systems['mindar-image-system'].stop();
+      hud.style.display = 'none'; hint.style.display = 'none'; startLayer.style.display = 'grid';
+    });
+  </script>
+</body>
+</html>
