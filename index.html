@@ -18,8 +18,8 @@ html, body {
   overflow: hidden;
   background: transparent;
   font-family: system-ui, sans-serif;
-  touch-action: pan-x pan-y;
   color: white;
+  touch-action: none;
 }
 
 a-scene {
@@ -38,7 +38,6 @@ a-scene canvas {
   height: 100% !important;
   background: transparent !important;
   touch-action: none !important;
-  pointer-events: auto !important;
 }
 
 video {
@@ -50,68 +49,98 @@ video {
   z-index: 0 !important;
 }
 
+/* หน้าเริ่มต้น */
 #start {
   position: fixed;
   inset: 0;
   z-index: 30;
   display: grid;
   place-items: center;
-  padding: 20px;
-  background: linear-gradient(145deg,#10243a,#1b3953);
+  padding: 22px;
+  background: linear-gradient(145deg, #10243a, #1b3953);
   text-align: center;
 }
 
 .panel {
   width: 100%;
-  max-width: 440px;
-  padding: 25px;
-  border: 1px solid #ffffff35;
-  border-radius: 20px;
+  max-width: 360px;
+  padding: 28px 22px;
+  border: 1px solid #ffffff30;
+  border-radius: 24px;
   background: #ffffff12;
+  box-shadow: 0 15px 40px #0004;
+  backdrop-filter: blur(12px);
 }
 
-h2 { margin-top: 0; }
+.panel h2 {
+  font-size: 21px;
+  margin: 0 0 12px;
+}
+
+.panel p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #d9e5ef;
+}
 
 button {
   color: white;
-  background: #18334e;
-  border: 1px solid #ffffff55;
+  background: #203b55;
+  border: 1px solid #ffffff35;
   border-radius: 12px;
-  padding: 11px 15px;
-  font-size: 14px;
-  font-weight: bold;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
 }
 
-button:active { background: #dc3e36; }
-button:disabled { opacity: .5; }
+button:active {
+  transform: scale(.97);
+  background: #315775;
+}
+
+button:disabled {
+  opacity: .5;
+}
 
 #startBtn {
   width: 100%;
-  background: #dc3e36;
-  margin-top: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 14px;
+  background: #e34b40;
+  font-size: 15px;
 }
 
 #status {
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.6;
-  margin-top: 12px;
+  margin-top: 14px;
   overflow-wrap: anywhere;
+  color: #dce8f2;
 }
 
+/* ข้อความแนะนำด้านบน */
 #hint {
   display: none;
   position: fixed;
   z-index: 10;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  padding: 9px;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 30px);
+  padding: 8px 14px;
   text-align: center;
-  border-radius: 12px;
-  background: #14283bea;
-  font-size: 12px;
+  border: 1px solid #ffffff25;
+  border-radius: 30px;
+  background: #10243ad9;
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 11px;
+  box-shadow: 0 3px 12px #0003;
   pointer-events: none;
 }
 
@@ -119,26 +148,42 @@ button:disabled { opacity: .5; }
   display: none;
   position: fixed;
   z-index: 10;
-  top: 49px;
-  left: 10px;
-  right: 10px;
+  top: calc(max(12px, env(safe-area-inset-top)) + 43px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 40px);
+  padding: 5px 11px;
+  border-radius: 20px;
+  background: #071827a8;
+  color: #d9f4e5;
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   pointer-events: none;
-  text-shadow: 0 1px 3px #000;
 }
 
+#modelStatus.error {
+  color: #ffb5a9;
+}
+
+/* แถบเครื่องมือหลักด้านล่าง */
 #controls {
   display: none;
   position: fixed;
   z-index: 20;
-  bottom: 8px;
-  left: 0;
-  right: 0;
-  padding: 6px;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(94vw, 390px);
+  padding: 10px;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  align-items: stretch;
+  gap: 8px;
+  border: 1px solid #ffffff30;
+  border-radius: 20px;
+  background: #0d2035e8;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 30px #0006;
   pointer-events: none;
 }
 
@@ -152,62 +197,170 @@ button:disabled { opacity: .5; }
 }
 
 .control-row button {
-  min-width: 43px;
-  min-height: 39px;
-  padding: 8px 11px;
-  background: #142b43ed;
-  box-shadow: 0 2px 8px #0005;
+  min-height: 38px;
+  padding: 8px 12px;
+  background: #29445e;
+  border: 1px solid #ffffff20;
+  box-shadow: none;
 }
 
-.control-row .wide { min-width: 104px; }
-
-#zoomValue, #brushValue {
-  font-size: 11px;
-  background: #14283bea;
-  border-radius: 10px;
-  padding: 7px 9px;
+/* ปุ่มเลือกโหมด */
+#controls > .control-row:first-child {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
+#controls > .control-row:first-child button {
+  min-height: 43px;
+  border-radius: 13px;
+  font-size: 13px;
+}
+
+#modeRotate.active {
+  background: #147d9c;
+  border-color: #48c6e5;
+}
+
+#modePaint.active {
+  background: #b83d32;
+  border-color: #ff8a78;
+}
+
+/* แผงวาดรอยไหม้ */
 #paintPanel {
   display: none;
-  width: min(94vw, 430px);
-  padding: 8px 10px;
-  border-radius: 13px;
-  background: #14283bed;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ffffff20;
+  border-radius: 14px;
+  background: #ffffff0d;
   pointer-events: auto;
-  box-shadow: 0 2px 10px #0006;
 }
 
 #paintPanel .setting {
-  display: flex;
+  display: grid;
+  grid-template-columns: 105px 1fr 25px;
   align-items: center;
   gap: 8px;
   font-size: 11px;
-  margin: 4px 0;
+  margin: 8px 0;
 }
 
 #paintPanel input[type="range"] {
-  flex: 1;
-  min-width: 80px;
+  width: 100%;
+  min-width: 0;
   accent-color: #ff765d;
+}
+
+#brushValue, #speedValue {
+  text-align: center;
+  font-size: 11px;
+  color: #ffd0c6;
 }
 
 #paintPanel .paint-actions {
   display: flex;
   justify-content: center;
-  gap: 7px;
-  margin-top: 6px;
+  margin-top: 10px;
 }
 
 #paintPanel button {
-  min-height: 34px;
-  padding: 7px 11px;
+  width: 100%;
+  min-height: 36px;
+  background: #8e2929;
 }
 
-#modeRotate.active { background: #147d9c; }
-#modePaint.active { background: #b83d32; }
-#clearBurns { background: #8e2929; }
-#modelStatus.error { color: #ffb5a9; }
+/* เมนูปรับมุมมองแบบพับเก็บ */
+#viewTools {
+  pointer-events: auto;
+  border-radius: 13px;
+  background: #ffffff0b;
+  border: 1px solid #ffffff1c;
+  overflow: hidden;
+}
+
+#viewTools summary {
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #dce9f5;
+  cursor: pointer;
+  list-style: none;
+}
+
+#viewTools summary::-webkit-details-marker {
+  display: none;
+}
+
+#viewTools summary::after {
+  content: "＋";
+  float: right;
+  color: #9db5c9;
+}
+
+#viewTools[open] summary::after {
+  content: "−";
+}
+
+#viewTools .view-content {
+  padding: 4px 8px 10px;
+}
+
+#viewTools .control-row {
+  margin-top: 5px;
+}
+
+#viewTools button {
+  min-width: 42px;
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+#zoomValue {
+  min-width: 48px;
+  padding: 7px;
+  text-align: center;
+  border-radius: 9px;
+  background: #ffffff12;
+  font-size: 11px;
+}
+
+/* ปุ่มล่างสุด */
+#controls > .control-row:last-child button {
+  flex: 1;
+  min-height: 39px;
+}
+
+#resetBtn {
+  background: #315775;
+}
+
+#stopBtn {
+  background: #8e2929;
+}
+
+/* หน้าจอมือถือขนาดเล็ก */
+@media (max-height: 650px) {
+  #controls {
+    gap: 5px;
+    padding: 7px;
+    bottom: 5px;
+  }
+
+  #controls > .control-row:first-child button {
+    min-height: 36px;
+  }
+
+  #hint {
+    top: 7px;
+  }
+
+  #modelStatus {
+    top: 42px;
+  }
+}
 </style>
 </head>
 
@@ -225,58 +378,75 @@ button:disabled { opacity: .5; }
   </div>
 </div>
 
+
 <div id="hint">ส่องกล้องไปที่โปสเตอร์ปฐมพยาบาล</div>
 <div id="modelStatus">กำลังโหลดโมเดล 3 มิติ...</div>
 
 <div id="controls">
 
+  <!-- เลือกโหมด -->
   <div class="control-row">
     <button id="modeRotate" class="active">↔ หมุนโมเดล</button>
     <button id="modePaint">🔥 วาดรอยไหม้</button>
   </div>
 
+  <!-- เครื่องมือวาดรอยไหม้ -->
   <div id="paintPanel">
+
     <div class="setting">
       <label for="brushSize">ขนาดรอยไหม้</label>
-      <input id="brushSize" type="range" min="8" max="110" value="38">
+      <input id="brushSize" type="range"
+        min="8" max="110" value="38">
       <span id="brushValue">38</span>
     </div>
 
     <div class="setting">
-      <label for="burnSpeed">ความเร็ว/ความเข้ม</label>
-      <input id="burnSpeed" type="range" min="1" max="10" value="5">
+      <label for="burnSpeed">ความเข้ม</label>
+      <input id="burnSpeed" type="range"
+        min="1" max="10" value="5">
       <span id="speedValue">5</span>
     </div>
 
     <div class="paint-actions">
       <button id="clearBurns">ลบรอยไหม้ทั้งหมด</button>
     </div>
+
   </div>
 
-  <div class="control-row">
-    <button data-action="up">▲</button>
-  </div>
+  <!-- เมนูปรับมุมมอง -->
+  <details id="viewTools">
+    <summary>⚙ ปรับมุมมองโมเดล</summary>
 
-  <div class="control-row">
-    <button data-action="left">◀</button>
-    <button data-action="down">▼</button>
-    <button data-action="right">▶</button>
-  </div>
+    <div class="view-content">
 
-  <div class="control-row">
-    <button data-action="tiltLeft">↶ เอียง</button>
-    <button data-action="tiltRight">เอียง ↷</button>
-  </div>
+      <div class="control-row">
+        <button data-action="up">▲</button>
+      </div>
 
-  <div class="control-row">
-    <button data-action="zoomOut">− ซูม</button>
-    <span id="zoomValue">100%</span>
-    <button data-action="zoomIn">+ ซูม</button>
-  </div>
+      <div class="control-row">
+        <button data-action="left">◀</button>
+        <button data-action="down">▼</button>
+        <button data-action="right">▶</button>
+      </div>
 
+      <div class="control-row">
+        <button data-action="tiltLeft">↶ เอียง</button>
+        <button data-action="tiltRight">เอียง ↷</button>
+      </div>
+
+      <div class="control-row">
+        <button data-action="zoomOut">− ซูม</button>
+        <span id="zoomValue">100%</span>
+        <button data-action="zoomIn">+ ซูม</button>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- ปุ่มหลัก -->
   <div class="control-row">
-    <button class="wide" id="resetBtn">รีเซ็ตมุมมอง</button>
-    <button class="wide" id="stopBtn">ปิดกล้อง</button>
+    <button id="resetBtn">รีเซ็ตมุมมอง</button>
+    <button id="stopBtn">ปิดกล้อง</button>
   </div>
 
 </div>
