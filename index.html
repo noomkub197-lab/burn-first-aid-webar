@@ -10,205 +10,54 @@
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
 <style>
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: transparent;
-  font-family: system-ui, sans-serif;
-  touch-action: pan-x pan-y;
-  color: white;
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:system-ui,sans-serif;touch-action:pan-x pan-y;color:#fff}
+a-scene{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;z-index:1;background:transparent!important}
+a-scene canvas{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;background:transparent!important;touch-action:none!important;pointer-events:auto!important}
+video{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:0!important}
+#start{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:linear-gradient(145deg,#10243a,#1b3953);text-align:center}
+.panel{width:100%;max-width:440px;padding:25px;border:1px solid #ffffff35;border-radius:20px;background:#ffffff12}
+h2{margin-top:0}
+button{color:#fff;background:#18334e;border:1px solid #ffffff55;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;touch-action:manipulation}
+button:active{filter:brightness(1.2)}
+button:disabled{opacity:.5}
+#startBtn{width:100%;background:#dc3e36;margin-top:10px}
+#status{font-size:13px;line-height:1.6;margin-top:12px;overflow-wrap:anywhere}
+#hint{display:none;position:fixed;z-index:10;top:9px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 24px);padding:7px 13px;text-align:center;border-radius:999px;background:#14283bd9;font-size:11px;line-height:1.35;pointer-events:none;box-shadow:0 2px 10px #0003}
+#modelStatus{display:none;position:fixed;z-index:10;top:43px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 30px);text-align:center;font-size:10px;pointer-events:none;text-shadow:0 1px 3px #000;background:#14283b99;padding:3px 9px;border-radius:20px}
+#controls{display:none;position:fixed;z-index:20;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(430px,calc(100vw - 20px));padding:8px 10px;flex-direction:column;align-items:stretch;gap:7px;pointer-events:none;border:1px solid #ffffff26;border-radius:18px;background:linear-gradient(180deg,#10263bdc,#0b1c2deF);box-shadow:0 5px 22px #0005;backdrop-filter:blur(10px)}
+.control-row{display:flex;justify-content:center;align-items:center;gap:7px;pointer-events:auto;flex-wrap:wrap}
+.control-row button{min-width:40px;min-height:36px;padding:7px 11px;background:#203c55f2;box-shadow:0 2px 7px #0003;font-size:13px}
+.control-row .wide{min-width:0;flex:1}
+#modeRotate,#modePaint{flex:1;min-height:39px;border-radius:12px;font-size:13px}
+#modeRotate.active{background:#147d9c;border-color:#5ed8f4}
+#modePaint.active{background:#b83d32;border-color:#ff9b8e}
+#paintPanel{display:none;width:100%;padding:8px 10px;border-radius:12px;background:#ffffff0c;border:1px solid #ffffff20;pointer-events:auto}
+#paintPanel .setting{display:grid;grid-template-columns:86px minmax(60px,1fr) 28px;align-items:center;gap:8px;font-size:11px;margin:5px 0}
+#paintPanel input[type=range]{width:100%;min-width:0;margin:0;accent-color:#ff8068}
+#brushValue,#speedValue,#zoomValue{font-size:11px;text-align:center;background:#ffffff18;border-radius:8px;padding:5px 6px;min-width:30px}
+#paintPanel .paint-actions{display:flex;justify-content:center;margin-top:7px}
+#paintPanel button{min-height:32px;padding:6px 13px;background:#8e2929;font-size:12px}
+.rotate-row{display:flex}
+#controls.paint-mode .rotate-row{display:none}
+#controls.rotate-mode .paint-only{display:none}
+#modelStatus.error{color:#ffb5a9}
+@media(max-width:600px){
+  #controls{bottom:max(7px,env(safe-area-inset-bottom));width:calc(100vw - 16px);padding:7px 8px;gap:6px;border-radius:16px}
+  .control-row{gap:6px}
+  .control-row button{min-height:34px;padding:6px 9px;font-size:12px}
+  #modeRotate,#modePaint{min-height:37px;font-size:12px}
+  #paintPanel{padding:6px 9px}
+  #paintPanel .setting{grid-template-columns:78px minmax(50px,1fr) 27px;gap:6px;margin:4px 0;font-size:10px}
+  #hint{top:7px;font-size:10px;padding:6px 11px}
+  #modelStatus{top:36px;font-size:9px}
 }
-
-a-scene {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 1;
-  background: transparent !important;
+@media(max-height:600px){
+  #controls{gap:4px;padding:5px 8px}
+  .control-row button{min-height:30px;padding:4px 8px}
+  #paintPanel{padding:4px 8px}
+  #paintPanel .setting{margin:2px 0}
 }
-
-a-scene canvas {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: transparent !important;
-  touch-action: none !important;
-  pointer-events: auto !important;
-}
-
-video {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  z-index: 0 !important;
-}
-
-#start {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: linear-gradient(145deg,#10243a,#1b3953);
-  text-align: center;
-}
-
-.panel {
-  width: 100%;
-  max-width: 440px;
-  padding: 25px;
-  border: 1px solid #ffffff35;
-  border-radius: 20px;
-  background: #ffffff12;
-}
-
-h2 { margin-top: 0; }
-
-button {
-  color: white;
-  background: #18334e;
-  border: 1px solid #ffffff55;
-  border-radius: 12px;
-  padding: 11px 15px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-button:active { background: #dc3e36; }
-button:disabled { opacity: .5; }
-
-#startBtn {
-  width: 100%;
-  background: #dc3e36;
-  margin-top: 10px;
-}
-
-#status {
-  font-size: 13px;
-  line-height: 1.6;
-  margin-top: 12px;
-  overflow-wrap: anywhere;
-}
-
-#hint {
-  display: none;
-  position: fixed;
-  z-index: 10;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  padding: 9px;
-  text-align: center;
-  border-radius: 12px;
-  background: #14283bea;
-  font-size: 12px;
-  pointer-events: none;
-}
-
-#modelStatus {
-  display: none;
-  position: fixed;
-  z-index: 10;
-  top: 49px;
-  left: 10px;
-  right: 10px;
-  text-align: center;
-  font-size: 11px;
-  pointer-events: none;
-  text-shadow: 0 1px 3px #000;
-}
-
-#controls {
-  display: none;
-  position: fixed;
-  z-index: 20;
-  bottom: 8px;
-  left: 0;
-  right: 0;
-  padding: 6px;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-}
-
-.control-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 7px;
-  pointer-events: auto;
-  flex-wrap: wrap;
-}
-
-.control-row button {
-  min-width: 43px;
-  min-height: 39px;
-  padding: 8px 11px;
-  background: #142b43ed;
-  box-shadow: 0 2px 8px #0005;
-}
-
-.control-row .wide { min-width: 104px; }
-
-#zoomValue, #brushValue {
-  font-size: 11px;
-  background: #14283bea;
-  border-radius: 10px;
-  padding: 7px 9px;
-}
-
-#paintPanel {
-  display: none;
-  width: min(94vw, 430px);
-  padding: 8px 10px;
-  border-radius: 13px;
-  background: #14283bed;
-  pointer-events: auto;
-  box-shadow: 0 2px 10px #0006;
-}
-
-#paintPanel .setting {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  margin: 4px 0;
-}
-
-#paintPanel input[type="range"] {
-  flex: 1;
-  min-width: 80px;
-  accent-color: #ff765d;
-}
-
-#paintPanel .paint-actions {
-  display: flex;
-  justify-content: center;
-  gap: 7px;
-  margin-top: 6px;
-}
-
-#paintPanel button {
-  min-height: 34px;
-  padding: 7px 11px;
-}
-
-#modeRotate.active { background: #147d9c; }
-#modePaint.active { background: #b83d32; }
-#clearBurns { background: #8e2929; }
-#modelStatus.error { color: #ffb5a9; }
 </style>
 </head>
 
@@ -229,57 +78,44 @@ button:disabled { opacity: .5; }
 <div id="hint">ส่องกล้องไปที่โปสเตอร์ปฐมพยาบาล</div>
 <div id="modelStatus">กำลังโหลดโมเดล 3 มิติ...</div>
 
-<div id="controls">
-
+<div id="controls" class="rotate-mode">
   <div class="control-row">
     <button id="modeRotate" class="active">↔ หมุนโมเดล</button>
-    <button id="modePaint">🔥 วาดรอยไหม้</button>
+    <button id="modePaint">🔥 ระบายแผล</button>
   </div>
 
-  <div id="paintPanel">
+  <div id="paintPanel" class="paint-only">
     <div class="setting">
-      <label for="brushSize">ขนาดรอยไหม้</label>
+      <label for="brushSize">ขนาดแปรง</label>
       <input id="brushSize" type="range" min="2" max="36" value="10">
       <span id="brushValue">10</span>
     </div>
-
     <div class="setting">
-      <label for="burnSpeed">ความเร็ว/ความเข้ม</label>
+      <label for="burnSpeed">ความเข้ม</label>
       <input id="burnSpeed" type="range" min="1" max="10" value="5">
       <span id="speedValue">5</span>
     </div>
-
     <div class="paint-actions">
       <button id="clearBurns">ลบรอยไหม้ทั้งหมด</button>
     </div>
   </div>
 
-  <div class="control-row">
-    <button data-action="up">▲</button>
-  </div>
-
-  <div class="control-row">
-    <button data-action="left">◀</button>
-    <button data-action="down">▼</button>
-    <button data-action="right">▶</button>
-  </div>
-
-  <div class="control-row">
-    <button data-action="tiltLeft">↶ เอียง</button>
-    <button data-action="tiltRight">เอียง ↷</button>
+  <div class="control-row rotate-row">
+    <button data-action="up" aria-label="หมุนขึ้น">▲</button>
+    <button data-action="left" aria-label="หมุนซ้าย">◀</button>
+    <button data-action="down" aria-label="หมุนลง">▼</button>
+    <button data-action="right" aria-label="หมุนขวา">▶</button>
+    <button data-action="tiltLeft">↶</button>
+    <button data-action="tiltRight">↷</button>
   </div>
 
   <div class="control-row">
     <button data-action="zoomOut">− ซูม</button>
     <span id="zoomValue">100%</span>
     <button data-action="zoomIn">+ ซูม</button>
-  </div>
-
-  <div class="control-row">
-    <button class="wide" id="resetBtn">รีเซ็ตมุมมอง</button>
+    <button class="wide" id="resetBtn">รีเซ็ต</button>
     <button class="wide" id="stopBtn">ปิดกล้อง</button>
   </div>
-
 </div>
 
 <a-scene
@@ -403,6 +239,9 @@ button:disabled { opacity: .5; }
 
   function setMode(mode) {
     interactionMode = mode;
+
+    controls.classList.toggle("rotate-mode", mode === "rotate");
+    controls.classList.toggle("paint-mode", mode === "paint");
 
     modeRotate.classList.toggle("active", mode === "rotate");
     modePaint.classList.toggle("active", mode === "paint");
