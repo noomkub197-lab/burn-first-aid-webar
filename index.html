@@ -1,445 +1,1134 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>WebAR ปฐมพยาบาลแผลไฟไหม้</title>
+
 <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent;font-family:system-ui,sans-serif;touch-action:none;color:white}
-a-scene{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;z-index:1;background:transparent!important}
-a-scene canvas{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;background:transparent!important;touch-action:none!important}
-video{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:0!important}
-#start{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:linear-gradient(145deg,#10243a,#1b3953);text-align:center}
-.panel{width:100%;max-width:440px;padding:25px;border:1px solid #ffffff35;border-radius:20px;background:#ffffff12}
-h2{margin-top:0}
-button{color:white;background:#18334e;border:1px solid #ffffff55;border-radius:12px;padding:10px 13px;font-size:14px;font-weight:bold;cursor:pointer;touch-action:manipulation}
-button:active{background:#dc3e36}
-button:disabled{opacity:.5}
-#startBtn{width:100%;background:#dc3e36;margin-top:10px}
-#status{font-size:13px;line-height:1.6;margin-top:12px;overflow-wrap:anywhere}
-#hint{display:none;position:fixed;z-index:10;top:10px;left:10px;right:10px;padding:9px;text-align:center;border-radius:12px;background:#14283bea;font-size:12px;pointer-events:none}
-#modelStatus{display:none;position:fixed;z-index:10;top:49px;left:10px;right:10px;text-align:center;font-size:11px;pointer-events:none;text-shadow:0 1px 3px #000}
-#controls{display:none;position:fixed;z-index:20;bottom:8px;left:0;right:0;padding:6px;flex-direction:column;align-items:center;gap:6px;pointer-events:none;max-height:65vh;overflow-y:auto}
-.control-row{display:flex;justify-content:center;align-items:center;gap:7px;pointer-events:auto;flex-wrap:wrap}
-.control-row button{min-width:43px;min-height:38px;padding:8px 11px;background:#142b43ed;box-shadow:0 2px 8px #0005}
-.control-row .wide{min-width:104px}
-#zoomValue,#brushValue,#speedValue{font-size:11px;background:#14283bea;border-radius:10px;padding:7px 9px}
-#paintPanel{display:none;width:min(94vw,430px);padding:8px 10px;border-radius:13px;background:#14283bed;pointer-events:auto;box-shadow:0 2px 10px #0006}
-#paintPanel .setting{display:flex;align-items:center;gap:8px;font-size:11px;margin:5px 0}
-#paintPanel input{flex:1;min-width:80px;accent-color:#ff765d}
-#modeRotate.active{background:#147d9c}
-#modePaint.active{background:#b83d32}
-#clearBurns{background:#8e2929}
-@media(max-height:650px){#controls{gap:4px}.control-row button{min-height:33px;padding:6px 9px}}
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: system-ui, sans-serif;
+  touch-action: pan-x pan-y;
+  color: white;
+}
+
+a-scene {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1;
+  background: transparent !important;
+}
+
+a-scene canvas {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  touch-action: none !important;
+  pointer-events: auto !important;
+}
+
+video {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  z-index: 0 !important;
+}
+
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: linear-gradient(145deg,#10243a,#1b3953);
+  text-align: center;
+}
+
+.panel {
+  width: 100%;
+  max-width: 440px;
+  padding: 25px;
+  border: 1px solid #ffffff35;
+  border-radius: 20px;
+  background: #ffffff12;
+}
+
+h2 { margin-top: 0; }
+
+button {
+  color: white;
+  background: #18334e;
+  border: 1px solid #ffffff55;
+  border-radius: 12px;
+  padding: 11px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:active { background: #dc3e36; }
+button:disabled { opacity: .5; }
+
+#startBtn {
+  width: 100%;
+  background: #dc3e36;
+  margin-top: 10px;
+}
+
+#status {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+
+#hint {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  padding: 9px;
+  text-align: center;
+  border-radius: 12px;
+  background: #14283bea;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+#modelStatus {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  top: 49px;
+  left: 10px;
+  right: 10px;
+  text-align: center;
+  font-size: 11px;
+  pointer-events: none;
+  text-shadow: 0 1px 3px #000;
+}
+
+#controls {
+  display: none;
+  position: fixed;
+  z-index: 20;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  padding: 6px;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.control-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  pointer-events: auto;
+  flex-wrap: wrap;
+}
+
+.control-row button {
+  min-width: 43px;
+  min-height: 39px;
+  padding: 8px 11px;
+  background: #142b43ed;
+  box-shadow: 0 2px 8px #0005;
+}
+
+.control-row .wide { min-width: 104px; }
+
+#zoomValue, #brushValue {
+  font-size: 11px;
+  background: #14283bea;
+  border-radius: 10px;
+  padding: 7px 9px;
+}
+
+#paintPanel {
+  display: none;
+  width: min(94vw, 430px);
+  padding: 8px 10px;
+  border-radius: 13px;
+  background: #14283bed;
+  pointer-events: auto;
+  box-shadow: 0 2px 10px #0006;
+}
+
+#paintPanel .setting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  margin: 4px 0;
+}
+
+#paintPanel input[type="range"] {
+  flex: 1;
+  min-width: 80px;
+  accent-color: #ff765d;
+}
+
+#paintPanel .paint-actions {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 6px;
+}
+
+#paintPanel button {
+  min-height: 34px;
+  padding: 7px 11px;
+}
+
+#modeRotate.active { background: #147d9c; }
+#modePaint.active { background: #b83d32; }
+#clearBurns { background: #8e2929; }
+#modelStatus.error { color: #ffb5a9; }
 </style>
 </head>
+
 <body>
-<div id="start"><div class="panel">
-<h2>WebAR ปฐมพยาบาลแผลไฟไหม้</h2>
-<p>สแกนโปสเตอร์เพื่อแสดงโมเดล 3 มิติ<br>หมุน ซูม และทดลองสร้างรอยไหม้บนโมเดลได้</p>
-<button id="startBtn">เริ่มสแกนโปสเตอร์</button>
-<div id="status">กดเริ่มสแกนและอนุญาตให้ใช้กล้อง</div>
-</div></div>
+
+<div id="start">
+  <div class="panel">
+    <h2>WebAR ปฐมพยาบาลแผลไฟไหม้</h2>
+    <p>
+      สแกนโปสเตอร์เพื่อแสดงโมเดล 3 มิติ<br>
+      หมุน ซูม และทดลองสร้างรอยไหม้บนโมเดลได้
+    </p>
+    <button id="startBtn">เริ่มสแกนโปสเตอร์</button>
+    <div id="status">กดเริ่มสแกนและอนุญาตให้ใช้กล้อง</div>
+  </div>
+</div>
+
 <div id="hint">ส่องกล้องไปที่โปสเตอร์ปฐมพยาบาล</div>
 <div id="modelStatus">กำลังโหลดโมเดล 3 มิติ...</div>
+
 <div id="controls">
+
   <div class="control-row">
     <button id="modeRotate" class="active">↔ หมุนโมเดล</button>
     <button id="modePaint">🔥 วาดรอยไหม้</button>
   </div>
+
   <div id="paintPanel">
-    <div class="setting"><label for="brushSize">ขนาดรอยไหม้</label><input id="brushSize" type="range" min="1" max="10" value="4"><span id="brushValue">4</span></div>
-    <div class="setting"><label for="burnSpeed">ความเข้ม</label><input id="burnSpeed" type="range" min="1" max="10" value="5"><span id="speedValue">5</span></div>
-    <div class="control-row"><button id="clearBurns">ลบรอยไหม้ทั้งหมด</button></div>
+    <div class="setting">
+      <label for="brushSize">ขนาดรอยไหม้</label>
+      <input id="brushSize" type="range" min="2" max="36" value="10">
+      <span id="brushValue">10</span>
+    </div>
+
+    <div class="setting">
+      <label for="burnSpeed">ความเร็ว/ความเข้ม</label>
+      <input id="burnSpeed" type="range" min="1" max="10" value="5">
+      <span id="speedValue">5</span>
+    </div>
+
+    <div class="paint-actions">
+      <button id="clearBurns">ลบรอยไหม้ทั้งหมด</button>
+    </div>
   </div>
-  <div class="control-row rotate-only"><button data-action="up">▲</button></div>
-  <div class="control-row rotate-only">
-    <button data-action="left">◀</button><button data-action="down">▼</button><button data-action="right">▶</button>
+
+  <div class="control-row">
+    <button data-action="up">▲</button>
   </div>
-  <div class="control-row rotate-only"><button data-action="tiltLeft">↶ เอียง</button><button data-action="tiltRight">เอียง ↷</button></div>
-  <div class="control-row rotate-only"><button data-action="zoomOut">− ซูม</button><span id="zoomValue">100%</span><button data-action="zoomIn">+ ซูม</button></div>
-  <div class="control-row"><button class="wide" id="resetBtn">รีเซ็ตมุมมอง</button><button class="wide" id="stopBtn">ปิดกล้อง</button></div>
+
+  <div class="control-row">
+    <button data-action="left">◀</button>
+    <button data-action="down">▼</button>
+    <button data-action="right">▶</button>
+  </div>
+
+  <div class="control-row">
+    <button data-action="tiltLeft">↶ เอียง</button>
+    <button data-action="tiltRight">เอียง ↷</button>
+  </div>
+
+  <div class="control-row">
+    <button data-action="zoomOut">− ซูม</button>
+    <span id="zoomValue">100%</span>
+    <button data-action="zoomIn">+ ซูม</button>
+  </div>
+
+  <div class="control-row">
+    <button class="wide" id="resetBtn">รีเซ็ตมุมมอง</button>
+    <button class="wide" id="stopBtn">ปิดกล้อง</button>
+  </div>
+
 </div>
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes; uiLoading: yes;"
-  color-space="sRGB" embedded
+  color-space="sRGB"
+  embedded
   renderer="alpha: true; colorManagement: true; physicallyCorrectLights: true; antialias: true"
-  vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false">
+
   <a-assets timeout="60000">
-    <a-asset-item id="burnModel" src="./base_basic_pbr.glb"></a-asset-item>
+    <a-asset-item
+      id="burnModel"
+      src="./base_basic_pbr.glb">
+    </a-asset-item>
   </a-assets>
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-  <a-entity id="posterTarget" mindar-image-target="targetIndex: 0">
-    <a-entity id="modelRoot" position="0 0.05 0.05" rotation="0 0 0" scale="0.42 0.42 0.42">
-      <a-entity id="modelMesh" gltf-model="#burnModel" position="0 -0.217 0" rotation="90 0 0"></a-entity>
+
+  <a-camera
+    position="0 0 0"
+    look-controls="enabled: false">
+  </a-camera>
+
+  <a-entity
+    id="posterTarget"
+    mindar-image-target="targetIndex: 0">
+
+    <a-entity
+      id="modelRoot"
+      position="0 0.05 0.05"
+      rotation="0 0 0"
+      scale="0.42 0.42 0.42">
+
+      <a-entity
+        id="modelMesh"
+        gltf-model="#burnModel"
+        position="0 -0.217 0"
+        rotation="90 0 0">
+      </a-entity>
+
     </a-entity>
   </a-entity>
 </a-scene>
 
 <script>
 (() => {
-  const scene=document.querySelector("a-scene");
-  const target=document.getElementById("posterTarget");
-  const root=document.getElementById("modelRoot");
-  const mesh=document.getElementById("modelMesh");
-  const startLayer=document.getElementById("start");
-  const startBtn=document.getElementById("startBtn");
-  const status=document.getElementById("status");
-  const hint=document.getElementById("hint");
-  const modelStatus=document.getElementById("modelStatus");
-  const controls=document.getElementById("controls");
-  const zoomValue=document.getElementById("zoomValue");
-  const modeRotate=document.getElementById("modeRotate");
-  const modePaint=document.getElementById("modePaint");
-  const paintPanel=document.getElementById("paintPanel");
-  const brushSizeInput=document.getElementById("brushSize");
-  const brushValue=document.getElementById("brushValue");
-  const burnSpeedInput=document.getElementById("burnSpeed");
-  const speedValue=document.getElementById("speedValue");
 
-  let cameraStarted=false,targetFound=false,modelLoaded=false;
-  let interactionMode="rotate";
-  let rotX=0,rotY=0,rotZ=0;
-  const BASE_ZOOM=0.42,MIN_ZOOM=0.15,MAX_ZOOM=1.30,ROTATE_SPEED=0.7;
-  let zoom=BASE_ZOOM;
-  const pointers=new Map();
-  let previousX=0,previousY=0,previousDistance=0;
-  let raycaster=null;
-  const ndc=new THREE.Vector2();
-  const decals=[];
-  let burnTexture=null;
-  let activePaint=null;
-  let lastStampTime=0;
+  const scene = document.querySelector("a-scene");
+  const target = document.getElementById("posterTarget");
+  const root = document.getElementById("modelRoot");
+  const mesh = document.getElementById("modelMesh");
 
-  function updateModel(){
-    root.setAttribute("rotation",`${rotX} ${rotY} ${rotZ}`);
-    root.setAttribute("scale",`${zoom} ${zoom} ${zoom}`);
-    zoomValue.textContent=Math.round(zoom/BASE_ZOOM*100)+"%";
-  }
-  function resetModel(){rotX=rotY=rotZ=0;zoom=BASE_ZOOM;updateModel();}
-  function waitForScene(){return new Promise(resolve=>scene.hasLoaded?resolve():scene.addEventListener("loaded",resolve,{once:true}));}
+  const startLayer = document.getElementById("start");
+  const startBtn = document.getElementById("startBtn");
+  const status = document.getElementById("status");
+  const hint = document.getElementById("hint");
+  const modelStatus = document.getElementById("modelStatus");
+  const controls = document.getElementById("controls");
+  const zoomValue = document.getElementById("zoomValue");
 
-  function makeBurnTexture(){
-    const c=document.createElement("canvas");c.width=256;c.height=256;
-    const ctx=c.getContext("2d");
-    const g=ctx.createRadialGradient(128,128,5,128,128,124);
-    g.addColorStop(0,"rgba(35,12,8,0.96)");
-    g.addColorStop(0.22,"rgba(65,19,12,0.94)");
-    g.addColorStop(0.43,"rgba(115,35,20,0.86)");
-    g.addColorStop(0.66,"rgba(155,43,28,0.62)");
-    g.addColorStop(0.84,"rgba(190,54,39,0.28)");
-    g.addColorStop(1,"rgba(190,45,30,0)");
-    ctx.fillStyle=g;ctx.fillRect(0,0,256,256);
-    // irregular dark flecks inside the burn
-    for(let i=0;i<38;i++){
-      const a=Math.random()*Math.PI*2,r=Math.random()*83;
-      const x=128+Math.cos(a)*r,y=128+Math.sin(a)*r;
-      ctx.fillStyle=`rgba(28,10,7,${0.15+Math.random()*0.48})`;
-      ctx.beginPath();ctx.ellipse(x,y,2+Math.random()*5,2+Math.random()*4,Math.random()*Math.PI,0,Math.PI*2);ctx.fill();
-    }
-    const tex=new THREE.CanvasTexture(c);
-    tex.colorSpace=THREE.SRGBColorSpace;
-    tex.minFilter=THREE.LinearMipmapLinearFilter;
-    tex.magFilter=THREE.LinearFilter;
-    tex.generateMipmaps=true;
-    return tex;
+  const modeRotate = document.getElementById("modeRotate");
+  const modePaint = document.getElementById("modePaint");
+  const paintPanel = document.getElementById("paintPanel");
+
+  const brushSizeInput = document.getElementById("brushSize");
+  const brushValue = document.getElementById("brushValue");
+  const burnSpeedInput = document.getElementById("burnSpeed");
+  const speedValue = document.getElementById("speedValue");
+
+  let cameraStarted = false;
+  let targetFound = false;
+  let modelLoaded = false;
+  let interactionMode = "rotate";
+
+  let rotX = 0;
+  let rotY = 0;
+  let rotZ = 0;
+
+  const BASE_ZOOM = 0.42;
+  let zoom = BASE_ZOOM;
+
+  const MIN_ZOOM = 0.15;
+  const MAX_ZOOM = 1.30;
+
+  const ROTATE_SPEED = 0.7;
+
+  const pointers = new Map();
+
+  let previousX = 0;
+  let previousY = 0;
+  let previousDistance = 0;
+
+  let paintMaterials = [];
+  let activePaint = null;
+  let paintAnimation = 0;
+
+  function updateModel() {
+    root.setAttribute("rotation", `${rotX} ${rotY} ${rotZ}`);
+    root.setAttribute("scale", `${zoom} ${zoom} ${zoom}`);
+
+    zoomValue.textContent =
+      Math.round((zoom / BASE_ZOOM) * 100) + "%";
   }
 
-  function prepareDecals(){
-    raycaster=new THREE.Raycaster();
-    burnTexture=makeBurnTexture();
-    modelLoaded=true;
-    modelStatus.textContent="โมเดลพร้อมใช้งาน • เลือกโหมดระบายแผลเพื่อเริ่ม";
+  function resetModel() {
+    rotX = 0;
+    rotY = 0;
+    rotZ = 0;
+    zoom = BASE_ZOOM;
+    updateModel();
   }
 
-  mesh.addEventListener("model-loaded",()=>{
-    try{prepareDecals();}
-    catch(e){console.error(e);modelStatus.textContent="เตรียมระบบรอยไหม้ไม่สำเร็จ";}
-  });
-  mesh.addEventListener("model-error",e=>{
-    console.error("GLB error",e);
-    modelStatus.textContent="โหลดโมเดลไม่สำเร็จ ตรวจสอบ base_basic_pbr.glb";
-  });
-
-  target.addEventListener("targetFound",()=>{
-    targetFound=true;controls.style.display="flex";modelStatus.style.display="block";
-    hint.textContent=interactionMode==="paint"?"แตะหรือลากบนผิวโมเดลเพื่อสร้างรอยไหม้":"ลากเพื่อหมุนโมเดล ใช้สองนิ้วเพื่อซูม";
-  });
-  target.addEventListener("targetLost",()=>{
-    targetFound=false;pointers.clear();activePaint=null;
-    controls.style.display="none";modelStatus.style.display="none";
-    hint.textContent="ส่องกล้องไปที่โปสเตอร์ปฐมพยาบาล";
-  });
-  scene.addEventListener("arReady",()=>status.textContent="กล้องพร้อมแล้ว กำลังค้นหาโปสเตอร์...");
-  scene.addEventListener("arError",e=>{console.error("AR error",e);showError("ระบบ AR เกิดข้อผิดพลาด กรุณาลองใหม่");});
-
-  function showError(message){status.textContent=message;startLayer.style.display="grid";startBtn.disabled=false;}
-  function waitForVideo(timeout=15000){
-    return new Promise((resolve,reject)=>{
-      const started=Date.now();
-      function check(){
-        const video=[...document.querySelectorAll("video")].find(v=>v.videoWidth>0&&v.videoHeight>0&&v.readyState>=2);
-        if(video)return resolve(video);
-        if(Date.now()-started>timeout)return reject(new Error("ยังไม่ได้รับภาพจากกล้อง"));
-        requestAnimationFrame(check);
-      }check();
+  function waitForScene() {
+    return new Promise(resolve => {
+      if (scene.hasLoaded) {
+        resolve();
+      } else {
+        scene.addEventListener("loaded", resolve, { once: true });
+      }
     });
   }
 
-  // กลไกเปิดกล้องคงตามโค้ดตัวอย่างที่ผู้ใช้ให้มา
-  startBtn.addEventListener("click",async()=>{
-    if(cameraStarted)return;
-    startBtn.disabled=true;status.textContent="กำลังเปิดกล้อง...";
-    try{
-      if(!window.isSecureContext)throw new Error("ต้องเปิดเว็บไซต์ผ่าน HTTPS");
-      await waitForScene();
-      const mindar=scene.systems["mindar-image-system"];
-      if(!mindar)throw new Error("ไม่พบระบบ MindAR");
-      await mindar.start();
-      await waitForVideo();
-      cameraStarted=true;startLayer.style.display="none";hint.style.display="block";
-    }catch(error){
-      console.error(error);
-      try{const mindar=scene.systems["mindar-image-system"];if(mindar)await mindar.stop();}catch(e){console.error(e);}
-      cameraStarted=false;showError("เปิดกล้องไม่สำเร็จ: "+error.message);
-    }finally{startBtn.disabled=false;}
+  function setMode(mode) {
+    interactionMode = mode;
+
+    modeRotate.classList.toggle("active", mode === "rotate");
+    modePaint.classList.toggle("active", mode === "paint");
+
+    paintPanel.style.display =
+      mode === "paint" ? "block" : "none";
+
+    hint.textContent = mode === "paint"
+      ? "โหมดวาดรอยไหม้: กดค้างเพื่อเผา หรือเลื่อนนิ้วเพื่อวาดแนวไหม้"
+      : "โหมดหมุน: ลากนิ้วหนึ่งนิ้วเพื่อหมุน และใช้สองนิ้วเพื่อซูม";
+
+    pointers.clear();
+    stopActivePaint();
+  }
+
+  // สร้าง paint canvas แยกตาม Base Color Texture ของแต่ละ material
+  const paintDataByTexture = new Map();
+
+  function preparePaintTextures() {
+    if (!mesh.object3D) throw new Error("ยังไม่พบ Object3D ของโมเดล");
+
+    const textureCache = new Map();
+    let usable = 0;
+
+    mesh.object3D.traverse(node => {
+      if (!node.isMesh || !node.material) return;
+
+      const materials = Array.isArray(node.material)
+        ? node.material
+        : [node.material];
+
+      const clonedMaterials = materials.map(originalMaterial => {
+        const originalMap = originalMaterial && originalMaterial.map;
+        if (!originalMap || !originalMap.image) return originalMaterial;
+
+        let data = textureCache.get(originalMap.uuid);
+
+        if (!data) {
+          const image = originalMap.image;
+          const width = image.naturalWidth || image.videoWidth || image.width;
+          const height = image.naturalHeight || image.videoHeight || image.height;
+          if (!width || !height) return originalMaterial;
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d", { willReadFrequently: false });
+          ctx.drawImage(image, 0, 0, width, height);
+
+          const paintTexture = originalMap.clone();
+          paintTexture.image = canvas;
+          // glTF textures use flipY=false; preserve the source orientation exactly.
+          paintTexture.flipY = originalMap.flipY;
+          paintTexture.needsUpdate = true;
+
+          data = {
+            canvas, ctx, texture: paintTexture, width, height,
+            originalMap, originalImage: image
+          };
+          textureCache.set(originalMap.uuid, data);
+          paintDataByTexture.set(paintTexture.uuid, data);
+          paintMaterials.push(data);
+        }
+
+        const material = originalMaterial.clone();
+        material.map = data.texture;
+        material.needsUpdate = true;
+        usable++;
+        return material;
+      });
+
+      node.material = Array.isArray(node.material)
+        ? clonedMaterials
+        : clonedMaterials[0];
+    });
+
+    if (!usable) {
+      throw new Error("ไม่พบ Base Color Texture ที่ใช้วาดได้ในโมเดล");
+    }
+
+    modelStatus.textContent = "โมเดลพร้อมใช้งาน • วาดรอยไหม้ได้";
+    console.log("Paintable base-color textures:", paintMaterials.length);
+  }
+
+  mesh.addEventListener("model-loaded", () => {
+
+    modelLoaded = true;
+    requestAnimationFrame(attachInteractionHandlers);
+
+    modelStatus.textContent =
+      "กำลังเตรียม Texture สำหรับวาดรอยไหม้...";
+
+    try {
+      preparePaintTextures();
+    } catch (error) {
+      console.error("Texture setup error:", error);
+
+      modelStatus.textContent =
+        "โมเดลโหลดแล้ว แต่เตรียม Texture ไม่สำเร็จ: " +
+        error.message;
+
+      modelStatus.classList.add("error");
+    }
   });
 
-  // Raycast บนโมเดลจริง รวมทุกชิ้นส่วน mesh เช่น มือ นิ้ว และแขน
-  function getSurfaceHit(clientX,clientY){
-    if(!modelLoaded||!raycaster||!scene.camera)return null;
-    const canvas=scene.renderer&&scene.renderer.domElement;
-    if(!canvas)return null;
-    const rect=canvas.getBoundingClientRect();
-    if(!rect.width||!rect.height)return null;
-    ndc.x=((clientX-rect.left)/rect.width)*2-1;
-    ndc.y=-((clientY-rect.top)/rect.height)*2+1;
+  mesh.addEventListener("model-error", event => {
+
+    console.error("GLB error", event);
+
+    modelStatus.textContent =
+      "โหลดโมเดลไม่สำเร็จ ตรวจสอบชื่อไฟล์ base_basic_pbr.glb";
+
+    modelStatus.classList.add("error");
+  });
+
+  target.addEventListener("targetFound", () => {
+
+    targetFound = true;
+
+    hint.textContent = interactionMode === "paint"
+      ? "โหมดวาดรอยไหม้: กดค้างหรือเลื่อนนิ้วบนโมเดล"
+      : "โหมดหมุน: ลากโมเดลเพื่อหมุน หรือใช้ปุ่มด้านล่าง";
+
+    controls.style.display = "flex";
+    modelStatus.style.display = "block";
+  });
+
+  target.addEventListener("targetLost", () => {
+
+    targetFound = false;
+    pointers.clear();
+
+    stopActivePaint();
+
+    controls.style.display = "none";
+    modelStatus.style.display = "none";
+
+    hint.textContent = "ส่องกล้องไปที่โปสเตอร์ปฐมพยาบาล";
+  });
+
+  scene.addEventListener("arReady", () => {
+    status.textContent =
+      "กล้องพร้อมแล้ว กำลังค้นหาโปสเตอร์...";
+  });
+
+  scene.addEventListener("arError", event => {
+    console.error("AR error", event);
+    showError("ระบบ AR เกิดข้อผิดพลาด กรุณาลองใหม่");
+  });
+
+  function showError(message) {
+    status.textContent = message;
+    startLayer.style.display = "grid";
+    startBtn.disabled = false;
+  }
+
+  function waitForVideo(timeout = 15000) {
+
+    return new Promise((resolve, reject) => {
+
+      const startTime = Date.now();
+
+      function check() {
+
+        const active =
+          [...document.querySelectorAll("video")].find(v =>
+            v.videoWidth > 0 &&
+            v.videoHeight > 0 &&
+            v.readyState >= 2
+          );
+
+        if (active) return resolve(active);
+
+        if (Date.now() - startTime > timeout) {
+          return reject(
+            new Error("ยังไม่ได้รับภาพจากกล้อง")
+          );
+        }
+
+        requestAnimationFrame(check);
+      }
+
+      check();
+    });
+  }
+
+  startBtn.addEventListener("click", async () => {
+
+    if (cameraStarted) return;
+
+    startBtn.disabled = true;
+    status.textContent = "กำลังเปิดกล้อง...";
+
+    try {
+
+      if (!window.isSecureContext) {
+        throw new Error("ต้องเปิดเว็บไซต์ผ่าน HTTPS");
+      }
+
+      await waitForScene();
+
+      const mindar =
+        scene.systems["mindar-image-system"];
+
+      if (!mindar) {
+        throw new Error("ไม่พบระบบ MindAR");
+      }
+
+      await mindar.start();
+      await waitForVideo();
+
+      cameraStarted = true;
+
+      startLayer.style.display = "none";
+      hint.style.display = "block";
+
+    } catch (error) {
+
+      console.error(error);
+
+      try {
+        const mindar =
+          scene.systems["mindar-image-system"];
+
+        if (mindar) await mindar.stop();
+
+      } catch (e) {
+        console.error(e);
+      }
+
+      cameraStarted = false;
+
+      showError(
+        "เปิดกล้องไม่สำเร็จ: " + error.message
+      );
+
+    } finally {
+      startBtn.disabled = false;
+    }
+
+  });
+
+  function getDistance() {
+
+    const p = [...pointers.values()];
+
+    if (p.length < 2) return 0;
+
+    const dx = p[0].x - p[1].x;
+    const dy = p[0].y - p[1].y;
+
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // Raycast คืน UV และ material ของพื้นผิวที่โดนจริง
+  const raycaster = new THREE.Raycaster();
+  const pointerNdc = new THREE.Vector2();
+
+  function getModelHit(clientX, clientY) {
+    if (!modelLoaded || !scene.camera || !mesh.object3D) return null;
+
+    const canvas = scene.renderer && scene.renderer.domElement;
+    if (!canvas) return null;
+
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+
+    pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
     scene.camera.updateMatrixWorld(true);
     root.object3D.updateMatrixWorld(true);
-    raycaster.setFromCamera(ndc,scene.camera);
-    const hits=raycaster.intersectObject(mesh.object3D,true);
-    for(const hit of hits){
-      if(!hit.face||!hit.object||!hit.object.isMesh)continue;
-      // Face normal is converted to world coordinates to orient the surface mark.
-      const normal=hit.face.normal.clone();
-      const normalMatrix=new THREE.Matrix3().getNormalMatrix(hit.object.matrixWorld);
-      normal.applyMatrix3(normalMatrix).normalize();
-      return {point:hit.point.clone(),normal,object:hit.object,distance:hit.distance};
+    mesh.object3D.updateMatrixWorld(true);
+
+    raycaster.setFromCamera(pointerNdc, scene.camera);
+    const hits = raycaster.intersectObject(mesh.object3D, true);
+
+    for (const hit of hits) {
+      if (!hit.uv || !hit.object || !hit.object.isMesh) continue;
+
+      const materialList = Array.isArray(hit.object.material)
+        ? hit.object.material
+        : [hit.object.material];
+
+      const materialIndex = hit.face && Number.isInteger(hit.face.materialIndex)
+        ? hit.face.materialIndex : 0;
+      const material = materialList[materialIndex] || materialList[0];
+      if (!material || !material.map) continue;
+
+      const data = paintDataByTexture.get(material.map.uuid);
+      if (!data) continue;
+
+      // Apply the texture's UV matrix (offset/repeat/rotation) before mapping to canvas.
+      const uv = hit.uv.clone();
+      if (material.map.matrixAutoUpdate) material.map.updateMatrix();
+      uv.applyMatrix3(material.map.matrix);
+
+      const wrap = (value, mode) => {
+        if (mode === THREE.RepeatWrapping) return ((value % 1) + 1) % 1;
+        if (mode === THREE.MirroredRepeatWrapping) {
+          const n = Math.floor(value);
+          const f = value - n;
+          return Math.abs(n % 2) === 1 ? 1 - f : f;
+        }
+        return Math.max(0, Math.min(1, value));
+      };
+
+      const u = wrap(uv.x, material.map.wrapS);
+      const v = wrap(uv.y, material.map.wrapT);
+
+      // Canvas origin is top-left. glTF maps normally have flipY=false.
+      const x = u * data.width;
+      const y = (material.map.flipY ? 1 - v : v) * data.height;
+
+      return { data, x, y, worldPoint: hit.point.clone() };
     }
     return null;
   }
 
-  // Each mark is a small transparent plane attached to modelRoot.
-  // It follows model rotation/zoom and does not depend on UV texture coordinates.
-  function addBurnDecal(hit,strength=0.6,sizeFactor=1){
-    if(!hit||!burnTexture)return;
-    root.object3D.updateMatrixWorld(true);
-
-    const localPoint=root.object3D.worldToLocal(hit.point.clone());
-    const inverseRoot=new THREE.Matrix4().copy(root.object3D.matrixWorld).invert();
-    const normalMatrix=new THREE.Matrix3().getNormalMatrix(inverseRoot);
-    const localNormal=hit.normal.clone().applyMatrix3(normalMatrix).normalize();
-
-    const slider=Number(brushSizeInput.value);
-    // Brush diameter in model-local units; larger settings cover more of the hand/arm.
-    const radius=(0.009+slider*0.0038)*sizeFactor;
-    const geometry=new THREE.PlaneGeometry(radius*2,radius*2,1,1);
-    const material=new THREE.MeshBasicMaterial({
-      map:burnTexture,
-      transparent:true,
-      opacity:Math.max(0.18,Math.min(1,strength)),
-      depthTest:true,
-      depthWrite:false,
-      side:THREE.DoubleSide,
-      polygonOffset:true,
-      polygonOffsetFactor:-2,
-      toneMapped:false
-    });
-    const decal=new THREE.Mesh(geometry,material);
-    decal.position.copy(localPoint).add(localNormal.clone().multiplyScalar(0.0015));
-    decal.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),localNormal);
-    decal.renderOrder=3;
-    root.object3D.add(decal);
-    decals.push(decal);
+  function getBrushRadius(data) {
+    // 2..36 slider maps to a sensible 0.2%..3.6% of texture width.
+    return Math.max(3, Number(brushSizeInput.value) / 1000 *
+      Math.min(data.width, data.height));
   }
 
-  function beginPaint(x,y){
-    const hit=getSurfaceHit(x,y);
-    if(!hit)return false;
-    const intensity=0.35+Number(burnSpeedInput.value)*0.045;
-    addBurnDecal(hit,intensity,0.9);
-    activePaint={lastPoint:hit.point,lastTime:performance.now()};
-    lastStampTime=performance.now();
+  function stampBurn(hit, strength, radiusScale = 1) {
+    if (!hit || !hit.data) return;
+
+    const { data, x, y } = hit;
+    const r = Math.max(2, getBrushRadius(data) * radiusScale);
+    const opacity = Math.max(0.08, Math.min(0.78, strength));
+
+    // Irregular, translucent burn: preserves the original skin texture.
+    const ctx = data.ctx;
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+
+    const gradient = ctx.createRadialGradient(x, y, r * 0.04, x, y, r);
+    gradient.addColorStop(0, `rgba(48, 17, 12, ${opacity * 0.88})`);
+    gradient.addColorStop(0.24, `rgba(104, 35, 23, ${opacity * 0.78})`);
+    gradient.addColorStop(0.52, `rgba(158, 55, 36, ${opacity * 0.52})`);
+    gradient.addColorStop(0.78, `rgba(190, 72, 48, ${opacity * 0.22})`);
+    gradient.addColorStop(1, "rgba(190, 72, 48, 0)");
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * (0.72 + Math.random() * 0.18),
+      Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+
+    // A few tiny dark flecks, not a solid black overlay.
+    const flecks = Math.max(1, Math.round(r / 12));
+    for (let i = 0; i < flecks; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const d = Math.random() * r * 0.58;
+      const fx = x + Math.cos(a) * d;
+      const fy = y + Math.sin(a) * d;
+      ctx.fillStyle = `rgba(35, 12, 9, ${opacity * (0.18 + Math.random() * 0.22)})`;
+      ctx.beginPath();
+      ctx.arc(fx, fy, Math.max(1, r * (0.025 + Math.random() * 0.025)), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+    data.texture.needsUpdate = true;
+  }
+
+  function interpolateAndPaint(from, to, strength) {
+    if (!from || !to || from.data !== to.data) {
+      if (to) stampBurn(to, strength);
+      return;
+    }
+
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const distance = Math.hypot(dx, dy);
+    const radius = getBrushRadius(to.data);
+
+    // A UV seam can jump across the atlas; do not paint a long line across it.
+    if (distance > Math.min(to.data.width, to.data.height) * 0.22) {
+      stampBurn(to, strength);
+      return;
+    }
+
+    const steps = Math.max(1, Math.ceil(distance / Math.max(2, radius * 0.34)));
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      stampBurn({
+        data: to.data,
+        x: from.x + dx * t,
+        y: from.y + dy * t
+      }, strength);
+    }
+  }
+
+  function paintAtHit(hit, strength, scale = 1) {
+    stampBurn(hit, strength, scale);
+  }
+
+  function stopActivePaint() {
+
+    activePaint = null;
+
+    if (paintAnimation) {
+      cancelAnimationFrame(paintAnimation);
+      paintAnimation = 0;
+    }
+  }
+
+  // กดค้างเพิ่มความเข้มเฉพาะจุดล่าสุดที่สัมผัสจริง
+  function animateHeldBurn() {
+    if (!activePaint) return;
+
+    const elapsed = (performance.now() - activePaint.startedAt) / 1000;
+    const speed = Number(burnSpeedInput.value);
+    const intensity = Math.min(0.72, 0.16 + elapsed * (0.06 + speed * 0.018));
+    const growth = 1 + Math.min(1.0, elapsed * 0.10);
+
+    paintAtHit(activePaint.hit, intensity, growth);
+    paintAnimation = requestAnimationFrame(animateHeldBurn);
+  }
+
+  function beginPaint(clientX, clientY) {
+    const hit = getModelHit(clientX, clientY);
+    if (!hit) return false;
+
+    activePaint = { hit, startedAt: performance.now() };
+    paintAtHit(hit, 0.38, 0.85);
+    paintAnimation = requestAnimationFrame(animateHeldBurn);
     return true;
   }
 
-  function movePaint(x,y){
-    if(!activePaint)return;
-    const hit=getSurfaceHit(x,y);
-    if(!hit)return;
-    const now=performance.now();
-    const distance=hit.point.distanceTo(activePaint.lastPoint);
-    const brush=(0.009+Number(brushSizeInput.value)*0.0038);
-    const spacing=Math.max(0.008,brush*0.65);
-    const count=Math.min(20,Math.floor(distance/spacing));
-    if(count>0){
-      // Interpolate points in world space, preserving the local surface normal.
-      const direction=hit.point.clone().sub(activePaint.lastPoint);
-      for(let i=1;i<=count;i++){
-        const p=activePaint.lastPoint.clone().add(direction.clone().multiplyScalar(i/(count+1)));
-        const intermediate=getSurfaceHitFromWorldPoint(p,hit.normal);
-        addBurnDecal(intermediate,0.35+Number(burnSpeedInput.value)*0.045,1);
-      }
-    }
-    if(now-lastStampTime>45){
-      addBurnDecal(hit,0.35+Number(burnSpeedInput.value)*0.045,1);
-      lastStampTime=now;
-    }
-    activePaint.lastPoint=hit.point;
-    activePaint.lastTime=now;
+  function movePaint(clientX, clientY) {
+    if (!activePaint) return;
+
+    const hit = getModelHit(clientX, clientY);
+    if (!hit) return;
+
+    const strength = 0.22 + Number(burnSpeedInput.value) * 0.035;
+    interpolateAndPaint(activePaint.hit, hit, strength);
+    activePaint.hit = hit;
   }
 
-  function getSurfaceHitFromWorldPoint(point,normal){
-    return {point:point.clone(),normal:normal.clone()};
+  // รับการสัมผัสจาก canvas ของ A-Frame โดยตรง
+  // setPointerCapture ช่วยให้ลากต่อเนื่องแม้นิ้วเคลื่อนออกจากตำแหน่งเริ่มต้น
+  const interactionCanvas = () => scene.renderer && scene.renderer.domElement;
+
+  function isControlTouch(event) {
+    return !!(event.target && event.target.closest &&
+      event.target.closest("#controls"));
   }
 
-  function stopPaint(){activePaint=null;}
+  function onPointerDown(event) {
+    if (!targetFound || isControlTouch(event)) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
 
-  function clearBurns(){
-    stopPaint();
-    for(const decal of decals){
-      if(decal.parent)decal.parent.remove(decal);
-      decal.geometry.dispose();
-      decal.material.dispose();
-    }
-    decals.length=0;
-  }
+    const canvas = interactionCanvas();
+    if (!canvas) return;
 
-  function setMode(mode){
-    interactionMode=mode;
-    modeRotate.classList.toggle("active",mode==="rotate");
-    modePaint.classList.toggle("active",mode==="paint");
-    paintPanel.style.display=mode==="paint"?"block":"none";
-    document.querySelectorAll(".rotate-only").forEach(el=>el.style.display=mode==="rotate"?"flex":"none");
-    hint.textContent=mode==="paint"?"โหมดระบายแผล: แตะเพื่อวางรอยไหม้ ลากเพื่อระบายต่อเนื่อง กดค้างเพื่อเพิ่มรอย":"โหมดหมุน: ลากนิ้วหนึ่งนิ้วเพื่อหมุน และใช้สองนิ้วเพื่อซูม";
-    pointers.clear();stopPaint();
-  }
-  modeRotate.addEventListener("click",()=>setMode("rotate"));
-  modePaint.addEventListener("click",()=>setMode("paint"));
-  brushSizeInput.addEventListener("input",()=>brushValue.textContent=brushSizeInput.value);
-  burnSpeedInput.addEventListener("input",()=>speedValue.textContent=burnSpeedInput.value);
-  document.getElementById("clearBurns").addEventListener("click",clearBurns);
+    if (interactionMode === "paint") {
+      // วาดได้เฉพาะเมื่อ raycast ชนพื้นผิวโมเดลจริง
+      if (pointers.size > 0) return;
+      const started = beginPaint(event.clientX, event.clientY);
+      if (!started) return;
 
-  function getDistance(){
-    const p=[...pointers.values()];
-    if(p.length<2)return 0;
-    return Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);
-  }
-  const canvasOf=()=>scene.renderer&&scene.renderer.domElement;
-  function isControl(event){return !!(event.target.closest&&event.target.closest("#controls"));}
-  function onPointerDown(event){
-    if(!targetFound||isControl(event))return;
-    if(event.pointerType==="mouse"&&event.button!==0)return;
-    const canvas=canvasOf();if(!canvas)return;
-    if(interactionMode==="paint"){
-      if(pointers.size)return;
-      if(!beginPaint(event.clientX,event.clientY))return;
       event.preventDefault();
-      try{canvas.setPointerCapture(event.pointerId);}catch(e){}
-      pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+      event.stopPropagation();
+      try { canvas.setPointerCapture(event.pointerId); } catch (e) {}
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       return;
     }
-    event.preventDefault();
-    try{canvas.setPointerCapture(event.pointerId);}catch(e){}
-    pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
-    if(pointers.size===1){previousX=event.clientX;previousY=event.clientY;}
-    if(pointers.size===2)previousDistance=getDistance();
-  }
-  function onPointerMove(event){
-    if(!targetFound||!pointers.has(event.pointerId))return;
-    event.preventDefault();
-    if(interactionMode==="paint"){
-      movePaint(event.clientX,event.clientY);
-      pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
-      return;
-    }
-    pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
-    if(pointers.size>=2){
-      const d=getDistance();
-      if(previousDistance>0&&d>0){zoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,zoom+(d-previousDistance)*0.002));updateModel();}
-      previousDistance=d;return;
-    }
-    const dx=event.clientX-previousX,dy=event.clientY-previousY;
-    previousX=event.clientX;previousY=event.clientY;
-    rotY+=dx*ROTATE_SPEED;rotX-=dy*ROTATE_SPEED;updateModel();
-  }
-  function releasePointer(event){
-    if(!pointers.has(event.pointerId))return;
-    pointers.delete(event.pointerId);
-    if(interactionMode==="paint")stopPaint();
-    else{
-      if(pointers.size===1){const p=[...pointers.values()][0];previousX=p.x;previousY=p.y;}
-      previousDistance=pointers.size>=2?getDistance():0;
-    }
-    const c=canvasOf();
-    try{if(c&&c.hasPointerCapture(event.pointerId))c.releasePointerCapture(event.pointerId);}catch(e){}
-  }
-  function attachHandlers(){
-    const canvas=canvasOf();
-    if(!canvas||canvas.dataset.burnHandlers==="1")return;
-    canvas.dataset.burnHandlers="1";
-    canvas.style.touchAction="none";
-    canvas.addEventListener("pointerdown",onPointerDown,{passive:false});
-    canvas.addEventListener("pointermove",onPointerMove,{passive:false});
-    canvas.addEventListener("pointerup",releasePointer);
-    canvas.addEventListener("pointercancel",releasePointer);
-    canvas.addEventListener("lostpointercapture",releasePointer);
-  }
-  scene.addEventListener("renderstart",attachHandlers);
-  scene.addEventListener("loaded",()=>requestAnimationFrame(attachHandlers));
-  document.addEventListener("contextmenu",e=>{if(!isControl(e))e.preventDefault();});
 
-  document.querySelectorAll("[data-action]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      if(!targetFound||interactionMode!=="rotate")return;
-      const step=15;
-      switch(button.dataset.action){
-        case"left":rotY-=step;break;
-        case"right":rotY+=step;break;
-        case"up":rotX-=step;break;
-        case"down":rotX+=step;break;
-        case"tiltLeft":rotZ-=step;break;
-        case"tiltRight":rotZ+=step;break;
-        case"zoomIn":zoom=Math.min(MAX_ZOOM,zoom+0.05);break;
-        case"zoomOut":zoom=Math.max(MIN_ZOOM,zoom-0.05);break;
+    // โหมดหมุน: จัดเก็บนิ้วเพื่อหมุน/ซูม
+    event.preventDefault();
+    event.stopPropagation();
+    try { canvas.setPointerCapture(event.pointerId); } catch (e) {}
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (pointers.size === 1) {
+      previousX = event.clientX;
+      previousY = event.clientY;
+    } else if (pointers.size === 2) {
+      previousDistance = getDistance();
+    }
+  }
+
+  function onPointerMove(event) {
+    if (!targetFound || !pointers.has(event.pointerId)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (interactionMode === "paint") {
+      movePaint(event.clientX, event.clientY);
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      return;
+    }
+
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (pointers.size >= 2) {
+      const newDistance = getDistance();
+      if (previousDistance > 0 && newDistance > 0) {
+        zoom += (newDistance - previousDistance) * 0.002;
+        zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+        updateModel();
       }
-      updateModel();
-    });
-  });
-  document.addEventListener("wheel",event=>{
-    if(!targetFound||interactionMode!=="rotate"||isControl(event))return;
-    event.preventDefault();
-    zoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,zoom-event.deltaY*0.001));
-    updateModel();
-  },{passive:false});
-  document.getElementById("resetBtn").addEventListener("click",resetModel);
+      previousDistance = newDistance;
+      return;
+    }
 
-  document.getElementById("stopBtn").addEventListener("click",async()=>{
-    try{
-      const mindar=scene.systems["mindar-image-system"];
-      if(mindar&&cameraStarted)await mindar.stop();
-    }catch(error){console.error(error);}
-    cameraStarted=false;targetFound=false;pointers.clear();stopPaint();resetModel();setMode("rotate");
-    controls.style.display="none";hint.style.display="none";modelStatus.style.display="none";
-    startLayer.style.display="grid";status.textContent="ปิดกล้องแล้ว กดเริ่มสแกนเพื่อใช้งานอีกครั้ง";
+    const dx = event.clientX - previousX;
+    const dy = event.clientY - previousY;
+    previousX = event.clientX;
+    previousY = event.clientY;
+
+    rotY += dx * ROTATE_SPEED;
+    rotX -= dy * ROTATE_SPEED;
+    updateModel();
+  }
+
+  function releasePointer(event) {
+    if (!pointers.has(event.pointerId)) return;
+
+    pointers.delete(event.pointerId);
+
+    if (interactionMode === "paint") {
+      stopActivePaint();
+    } else {
+      if (pointers.size === 1) {
+        const p = [...pointers.values()][0];
+        previousX = p.x;
+        previousY = p.y;
+      }
+      previousDistance = pointers.size >= 2 ? getDistance() : 0;
+    }
+
+    const canvas = interactionCanvas();
+    try {
+      if (canvas && canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+    } catch (e) {}
+  }
+
+  // ผูก listener กับ canvas แทน document เพื่อไม่ให้การวาดไปรบกวน UI ทั้งหน้า
+  function attachInteractionHandlers() {
+    const canvas = interactionCanvas();
+    if (!canvas || canvas.dataset.touchHandlersReady === "1") return;
+
+    canvas.dataset.touchHandlersReady = "1";
+    canvas.style.touchAction = "none";
+
+    canvas.addEventListener("pointerdown", onPointerDown, { passive: false });
+    canvas.addEventListener("pointermove", onPointerMove, { passive: false });
+    canvas.addEventListener("pointerup", releasePointer);
+    canvas.addEventListener("pointercancel", releasePointer);
+    canvas.addEventListener("lostpointercapture", releasePointer);
+  }
+
+  // A-Frame อาจสร้าง canvas หลัง scene โหลดเสร็จ
+  scene.addEventListener("renderstart", attachInteractionHandlers);
+  scene.addEventListener("loaded", () => {
+    requestAnimationFrame(attachInteractionHandlers);
   });
+
+  // ป้องกันเมนูคลิกขวาบนโมเดล
+  document.addEventListener("contextmenu", event => {
+    if (!isControlTouch(event)) event.preventDefault();
+  });
+
+  // สลับโหมด
+  modeRotate.addEventListener(
+    "click",
+    () => setMode("rotate")
+  );
+
+  modePaint.addEventListener(
+    "click",
+    () => setMode("paint")
+  );
+
+  // ปรับขนาดรอยไหม้
+  brushSizeInput.addEventListener("input", () => {
+    brushValue.textContent = brushSizeInput.value;
+  });
+
+  // ปรับความเข้ม
+  burnSpeedInput.addEventListener("input", () => {
+    speedValue.textContent = burnSpeedInput.value;
+  });
+
+  // ลบรอยไหม้ทั้งหมด
+  document.getElementById("clearBurns")
+    .addEventListener("click", () => {
+
+      stopActivePaint();
+
+      paintMaterials.forEach(data => {
+
+        data.ctx.clearRect(0, 0, data.width, data.height);
+        data.ctx.drawImage(data.originalImage, 0, 0, data.width, data.height);
+
+        data.texture.needsUpdate = true;
+      });
+
+      modelStatus.textContent =
+        "ลบรอยไหม้ทั้งหมดแล้ว";
+    });
+
+  // ปุ่มควบคุมโมเดล
+  document.querySelectorAll("[data-action]")
+    .forEach(button => {
+
+      button.addEventListener("click", () => {
+
+        if (!targetFound) return;
+
+        const action = button.dataset.action;
+        const step = 15;
+
+        switch (action) {
+
+          case "left":
+            rotY -= step;
+            break;
+
+          case "right":
+            rotY += step;
+            break;
+
+          case "up":
+            rotX -= step;
+            break;
+
+          case "down":
+            rotX += step;
+            break;
+
+          case "tiltLeft":
+            rotZ -= step;
+            break;
+
+          case "tiltRight":
+            rotZ += step;
+            break;
+
+          case "zoomIn":
+            zoom = Math.min(MAX_ZOOM, zoom + 0.05);
+            break;
+
+          case "zoomOut":
+            zoom = Math.max(MIN_ZOOM, zoom - 0.05);
+            break;
+        }
+
+        updateModel();
+      });
+
+    });
+
+  // ซูมด้วยลูกกลิ้งเมาส์
+  document.addEventListener("wheel", event => {
+
+    if (!targetFound) return;
+
+    if (interactionMode !== "rotate") return;
+
+    if (event.target.closest("#controls")) return;
+
+    event.preventDefault();
+
+    zoom -= event.deltaY * 0.001;
+
+    zoom = Math.max(
+      MIN_ZOOM,
+      Math.min(MAX_ZOOM, zoom)
+    );
+
+    updateModel();
+
+  }, { passive: false });
+
+  document.getElementById("resetBtn")
+    .addEventListener("click", resetModel);
+
+  // ปิดกล้อง
+  document.getElementById("stopBtn")
+    .addEventListener("click", async () => {
+
+      try {
+
+        const mindar =
+          scene.systems["mindar-image-system"];
+
+        if (mindar && cameraStarted) {
+          await mindar.stop();
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+
+      cameraStarted = false;
+      targetFound = false;
+
+      pointers.clear();
+      stopActivePaint();
+
+      resetModel();
+
+      controls.style.display = "none";
+      hint.style.display = "none";
+      modelStatus.style.display = "none";
+
+      startLayer.style.display = "grid";
+
+      status.textContent =
+        "ปิดกล้องแล้ว กดเริ่มสแกนเพื่อใช้งานอีกครั้ง";
+
+    });
 
   updateModel();
+
 })();
 </script>
+
 </body>
 </html>
