@@ -3,33 +3,91 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
-  <title>WebAR จำลองแผลไฟไหม้</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>WebAR จำลองแผลไฟไหม้ 3D</title>
 
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: Arial, sans-serif;
       background: #111;
+      font-family: Arial, sans-serif;
       touch-action: none;
     }
 
     a-scene {
+      position: fixed !important;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1 !important;
+    }
+
+    .start-screen {
       position: fixed;
       inset: 0;
-      z-index: 1;
+      z-index: 999999 !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      background: rgba(0,0,0,.9);
+      color: white;
+      text-align: center;
+      pointer-events: auto !important;
+      touch-action: manipulation;
+    }
+
+    .start-card {
+      width: 100%;
+      max-width: 340px;
+      position: relative;
+      z-index: 1000000;
+      pointer-events: auto !important;
+    }
+
+    .start-card h2 { margin-bottom: 12px; }
+
+    .start-card p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #ddd;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 13px;
+      min-height: 40px;
+      color: white;
+      background: #444;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:disabled { opacity: .5; }
+
+    #startButton {
+      position: relative;
+      z-index: 1000001;
+      display: inline-block;
+      min-width: 160px;
+      min-height: 48px;
+      margin-top: 12px;
+      padding: 13px 24px;
+      background: #1685e8;
+      font-size: 16px;
+      pointer-events: auto !important;
     }
 
     .topbar {
@@ -45,74 +103,14 @@
     }
 
     .status {
-      color: white;
-      background: rgba(0,0,0,.65);
       padding: 9px 13px;
       border-radius: 20px;
-      font-size: 13px;
-      pointer-events: auto;
-    }
-
-    .panel {
-      position: fixed;
-      z-index: 20;
-      left: 12px;
-      right: 12px;
-      bottom: 14px;
-      padding: 10px;
-      border-radius: 16px;
-      background: rgba(20,20,20,.82);
       color: white;
-      backdrop-filter: blur(8px);
-    }
-
-    .row {
-      display: flex;
-      gap: 7px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-
-    .row:last-child {
-      margin-bottom: 0;
-    }
-
-    button {
-      border: 0;
-      border-radius: 10px;
-      padding: 10px 13px;
-      color: white;
-      background: #444;
+      background: rgba(0,0,0,.7);
       font-size: 13px;
-      font-weight: 600;
-      min-height: 38px;
-      touch-action: manipulation;
     }
 
-    button.active {
-      background: #1685e8;
-    }
-
-    button.danger {
-      background: #b52e35;
-    }
-
-    button:disabled {
-      opacity: .4;
-    }
-
-    .setting {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-    }
-
-    input[type="range"] {
-      width: 85px;
-    }
+    #stopButton { pointer-events: auto; }
 
     .hint {
       position: fixed;
@@ -122,160 +120,136 @@
       transform: translateX(-50%);
       width: max-content;
       max-width: calc(100% - 30px);
-      text-align: center;
-      color: white;
-      font-size: 12px;
-      background: rgba(0,0,0,.55);
-      border-radius: 20px;
       padding: 7px 12px;
+      border-radius: 20px;
+      color: white;
+      background: rgba(0,0,0,.6);
+      font-size: 12px;
+      text-align: center;
       pointer-events: none;
     }
 
-    .start-screen {
+    .panel {
       position: fixed;
-      z-index: 30;
-      inset: 0;
+      z-index: 20;
+      left: 10px;
+      right: 10px;
+      bottom: 12px;
+      padding: 10px;
+      border-radius: 15px;
+      color: white;
+      background: rgba(20,20,20,.86);
+      pointer-events: auto;
+    }
+
+    .row {
       display: flex;
       justify-content: center;
       align-items: center;
-      background: rgba(0,0,0,.88);
-      color: white;
-      text-align: center;
-      padding: 25px;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 8px;
     }
 
-    .start-card {
-      max-width: 330px;
+    .row:last-child { margin-bottom: 0; }
+
+    button.active { background: #1685e8; }
+    button.danger { background: #b52e35; }
+
+    .setting {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
     }
 
-    .start-card h2 {
-      margin-bottom: 10px;
-    }
+    input[type="range"] { width: 85px; }
 
-    .start-card p {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #ddd;
-    }
-
-    .start-card button {
-      background: #1685e8;
-      padding: 13px 25px;
-      font-size: 15px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     @media (max-height: 600px) {
-      .panel {
-        bottom: 5px;
-        padding: 7px;
-      }
-
-      button {
-        min-height: 32px;
-        padding: 7px 10px;
-      }
-
-      .hint {
-        top: 48px;
-      }
+      .panel { bottom: 5px; padding: 7px; }
+      button { min-height: 34px; padding: 7px 10px; }
+      .hint { top: 48px; }
     }
   </style>
 </head>
 
 <body>
 
+  <!-- หน้าจอเริ่มต้น -->
   <div class="start-screen" id="startScreen">
     <div class="start-card">
       <h2>จำลองแผลไฟไหม้ 3D</h2>
       <p>
-        เปิดกล้องและสแกนโปสเตอร์สำหรับใช้งาน AR<br>
-        หมุนโมเดลและทดลองวาดรอยแผลไฟไหม้ได้
+        กดปุ่มด้านล่างเพื่อเปิดกล้อง<br>
+        จากนั้นสแกนโปสเตอร์เพื่อแสดงโมเดล
       </p>
-      <button id="startButton">เริ่มใช้งาน</button>
+      <button type="button" id="startButton">เริ่มสแกนโปสเตอร์</button>
+      <p id="startMessage" aria-live="polite"></p>
     </div>
   </div>
 
   <div class="topbar">
     <div class="status" id="status">รอสแกนโปสเตอร์</div>
-    <button id="stopButton">ปิดกล้อง</button>
+    <button type="button" id="stopButton">ปิดกล้อง</button>
   </div>
 
-  <div class="hint" id="hint">
-    สแกนโปสเตอร์เพื่อแสดงโมเดล
-  </div>
+  <div class="hint" id="hint">กดเริ่มสแกนโปสเตอร์</div>
 
+  <!-- แผงควบคุม -->
   <div class="panel">
     <div class="row">
-      <button id="rotateMode" class="active">หมุนโมเดล</button>
-      <button id="paintMode">วาดแผล</button>
-      <button id="resetView">คืนมุมมอง</button>
+      <button type="button" id="rotateMode" class="active">หมุนโมเดล</button>
+      <button type="button" id="paintMode">วาดแผล</button>
+      <button type="button" id="resetView">คืนมุมมอง</button>
     </div>
 
     <div class="row">
-      <button id="zoomIn">＋ ซูม</button>
-      <button id="zoomOut">－ ซูม</button>
-      <button id="rotateLeft">↶</button>
-      <button id="rotateRight">↷</button>
-      <button id="clearBurns" class="danger">ลบรอยแผล</button>
+      <button type="button" id="zoomIn">＋ ซูม</button>
+      <button type="button" id="zoomOut">－ ซูม</button>
+      <button type="button" id="rotateLeft">↶</button>
+      <button type="button" id="rotateRight">↷</button>
+      <button type="button" id="clearBurns" class="danger">ลบรอยแผล</button>
     </div>
 
     <div class="row">
       <label class="setting">
         ขนาดแผล
-        <input id="brushSize" type="range"
-               min="8" max="90" value="35">
+        <input id="brushSize" type="range" min="8" max="90" value="35">
       </label>
 
       <label class="setting">
         ความเข้ม
-        <input id="burnStrength" type="range"
-               min="1" max="10" value="5">
+        <input id="burnStrength" type="range" min="1" max="10" value="5">
       </label>
     </div>
   </div>
 
+  <!-- MindAR -->
   <a-scene
     id="scene"
-    mindar-image="imageTargetSrc: ./targets.mind;
-                  autoStart: false;
-                  uiScanning: yes;
-                  uiLoading: yes;"
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: yes; uiLoading: yes;"
     color-space="sRGB"
     renderer="colorManagement: true; physicallyCorrectLights: true"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
 
     <a-assets>
-      <a-asset-item
-        id="bodyModel"
-        src="./base_basic_pbr.glb">
-      </a-asset-item>
+      <a-asset-item id="bodyModel" src="./base_basic_pbr.glb"></a-asset-item>
     </a-assets>
 
-    <a-camera
-      position="0 0 0"
-      look-controls="enabled: false">
-    </a-camera>
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-
       <a-entity
         id="modelRoot"
         position="0 0 0"
         rotation="90 0 0"
         scale="0.42 0.42 0.42">
 
-        <a-entity
-          id="model"
-          gltf-model="#bodyModel">
-        </a-entity>
-
+        <a-entity id="model" gltf-model="#bodyModel"></a-entity>
       </a-entity>
-
     </a-entity>
   </a-scene>
 
@@ -287,30 +261,25 @@
     const modelEl = document.querySelector("#model");
     const rootEl = document.querySelector("#modelRoot");
 
+    const startScreen = document.querySelector("#startScreen");
+    const startButton = document.querySelector("#startButton");
+    const startMessage = document.querySelector("#startMessage");
+
     const statusEl = document.querySelector("#status");
     const hintEl = document.querySelector("#hint");
-
-    const startScreen = document.querySelector("#startScreen");
-
-    const rotateModeBtn = document.querySelector("#rotateMode");
-    const paintModeBtn = document.querySelector("#paintMode");
-
-    const brushSizeInput = document.querySelector("#brushSize");
-    const burnStrengthInput = document.querySelector("#burnStrength");
 
     const THREE = AFRAME.THREE;
 
     let modelLoaded = false;
     let targetVisible = false;
     let cameraStarted = false;
+    let startingCamera = false;
     let paintMode = false;
 
-    let raycaster;
-    let pointerNdc;
+    let raycaster = null;
+    let pointerNdc = null;
 
     let paintMaterials = [];
-    let originalMaterials = [];
-
     let activePointer = null;
     let lastHit = null;
     let heldTimer = null;
@@ -323,41 +292,130 @@
 
     const pointers = new Map();
 
-    const clamp = (value, min, max) =>
-      Math.max(min, Math.min(max, value));
-
-    function getCanvas() {
-      return sceneEl.canvas;
-    }
-
-    function setStatus(text) {
-      statusEl.textContent = text;
+    function setStatus(message) {
+      statusEl.textContent = message;
     }
 
     function setMode(isPaint) {
       paintMode = isPaint;
 
-      rotateModeBtn.classList.toggle("active", !isPaint);
-      paintModeBtn.classList.toggle("active", isPaint);
+      document.querySelector("#rotateMode")
+        .classList.toggle("active", !isPaint);
+
+      document.querySelector("#paintMode")
+        .classList.toggle("active", isPaint);
 
       hintEl.textContent = isPaint
         ? "แตะเพื่อสร้างแผล • ลากเพื่อวาดต่อเนื่อง • กดค้างเพื่อเพิ่มความเข้ม"
         : "ลากนิ้วเพื่อหมุน • ใช้สองนิ้วเพื่อซูม";
     }
 
-    // ------------------------------------
-    // เตรียม texture สำหรับวาดแผล
-    // ------------------------------------
+    // รอให้ A-Frame โหลดฉากเสร็จ
+    function waitForScene() {
+      return new Promise((resolve, reject) => {
+        if (sceneEl.hasLoaded) {
+          resolve();
+          return;
+        }
 
+        const timeout = setTimeout(() => {
+          reject(new Error("ฉาก AR โหลดไม่สำเร็จ"));
+        }, 20000);
+
+        sceneEl.addEventListener("loaded", () => {
+          clearTimeout(timeout);
+          resolve();
+        }, { once: true });
+      });
+    }
+
+    // รอให้ MindAR system พร้อม
+    async function waitForMindAR() {
+      await waitForScene();
+
+      for (let i = 0; i < 40; i++) {
+        const system = sceneEl.systems["mindar-image-system"];
+        if (system && typeof system.start === "function") {
+          return system;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+
+      throw new Error("ไม่พบระบบ MindAR");
+    }
+
+    // เริ่มกล้องจากการแตะปุ่มโดยตรง
+    async function startCamera() {
+      if (startingCamera || cameraStarted) return;
+
+      startingCamera = true;
+      startButton.disabled = true;
+      startButton.textContent = "กำลังเปิดกล้อง...";
+      startMessage.textContent = "";
+      setStatus("กำลังเตรียมกล้อง");
+
+      try {
+        const system = await waitForMindAR();
+
+        await system.start();
+
+        cameraStarted = true;
+        startScreen.classList.add("hidden");
+
+        setStatus("กำลังค้นหาโปสเตอร์");
+        hintEl.textContent = "นำกล้องส่องไปที่โปสเตอร์";
+
+      } catch (error) {
+        console.error("MindAR start error:", error);
+
+        startMessage.textContent =
+          "เปิดกล้องไม่สำเร็จ: " + (error.message || error);
+
+        setStatus("เปิดกล้องไม่สำเร็จ");
+
+        alert(
+          "ไม่สามารถเริ่มสแกนได้\n\n" +
+          (error.message || error) +
+          "\n\nตรวจสอบสิทธิ์กล้องและเปิดเว็บผ่าน HTTPS"
+        );
+
+      } finally {
+        startingCamera = false;
+        startButton.disabled = false;
+        startButton.textContent = "เริ่มสแกนโปสเตอร์";
+      }
+    }
+
+    async function stopCamera() {
+      try {
+        const system = sceneEl.systems["mindar-image-system"];
+
+        if (system && cameraStarted) {
+          await system.stop();
+        }
+      } catch (error) {
+        console.error(error);
+      }
+
+      cameraStarted = false;
+      targetVisible = false;
+
+      clearHeldTimer();
+      pointers.clear();
+      activePointer = null;
+      lastHit = null;
+
+      startScreen.classList.remove("hidden");
+      setStatus("ปิดกล้องแล้ว");
+      hintEl.textContent = "กดเริ่มสแกนโปสเตอร์";
+    }
+
+    // เตรียม Texture สำหรับวาดรอยแผล
     function preparePaintTextures() {
-      if (!modelLoaded) return;
-
       paintMaterials = [];
-      originalMaterials = [];
 
-      const object = modelEl.object3D;
-
-      object.traverse((child) => {
+      modelEl.object3D.traverse((child) => {
         if (!child.isMesh) return;
 
         const original = child.material;
@@ -371,7 +429,6 @@
           }
 
           const image = mat.map.image;
-
           const width = image.naturalWidth || image.width;
           const height = image.naturalHeight || image.height;
 
@@ -381,10 +438,7 @@
           canvas.width = width;
           canvas.height = height;
 
-          const ctx = canvas.getContext("2d", {
-            willReadFrequently: false
-          });
-
+          const ctx = canvas.getContext("2d");
           ctx.drawImage(image, 0, 0, width, height);
 
           const paintMap = new THREE.CanvasTexture(canvas);
@@ -401,11 +455,8 @@
           paintMap.repeat.copy(mat.map.repeat);
           paintMap.center.copy(mat.map.center);
           paintMap.rotation = mat.map.rotation;
-
           paintMap.matrixAutoUpdate = mat.map.matrixAutoUpdate;
           paintMap.matrix.copy(mat.map.matrix);
-
-          paintMap.needsUpdate = true;
 
           const cloned = mat.clone();
           cloned.map = paintMap;
@@ -421,18 +472,9 @@
           };
 
           cloned.userData.burnPaintData = data;
-
-          paintMaterials.push({
-            material: cloned,
-            data
-          });
+          paintMaterials.push({ material: cloned, data });
 
           return cloned;
-        });
-
-        originalMaterials.push({
-          mesh: child,
-          material: original
         });
 
         child.material = Array.isArray(original)
@@ -444,32 +486,20 @@
       pointerNdc = new THREE.Vector2();
     }
 
-    // ------------------------------------
-    // ค้นหาตำแหน่งที่นิ้วแตะบนโมเดล
-    // ------------------------------------
-
+    // ตรวจหาตำแหน่งที่แตะบนโมเดล
     function getModelHit(clientX, clientY) {
-      if (
-        !modelLoaded ||
-        !raycaster ||
-        !sceneEl.camera ||
-        !modelEl.object3D
-      ) {
+      if (!modelLoaded || !raycaster || !sceneEl.camera) {
         return null;
       }
 
-      const canvas = getCanvas();
+      const canvas = sceneEl.canvas;
       if (!canvas) return null;
 
       const rect = canvas.getBoundingClientRect();
-
       if (!rect.width || !rect.height) return null;
 
-      pointerNdc.x =
-        ((clientX - rect.left) / rect.width) * 2 - 1;
-
-      pointerNdc.y =
-        -((clientY - rect.top) / rect.height) * 2 + 1;
+      pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
       sceneEl.camera.updateMatrixWorld(true);
       rootEl.object3D.updateMatrixWorld(true);
@@ -477,13 +507,7 @@
 
       raycaster.setFromCamera(pointerNdc, sceneEl.camera);
 
-      const hits = raycaster.intersectObject(
-        modelEl.object3D,
-        true
-      );
-
-      // ใช้เฉพาะจุดที่ใกล้กล้องที่สุด
-      // ป้องกันการแตะครั้งเดียวแล้วเกิดหลายรอย
+      const hits = raycaster.intersectObject(modelEl.object3D, true);
       if (!hits.length) return null;
 
       const hit = hits[0];
@@ -499,7 +523,6 @@
       if (!material || !material.userData) return null;
 
       const data = material.userData.burnPaintData;
-
       if (!data) return null;
 
       const uv = hit.uv.clone();
@@ -508,35 +531,29 @@
       data.originalMap.transformUv(uv);
 
       return {
-        uv: {
-          u: uv.x,
-          v: uv.y
-        },
+        uv: { u: uv.x, v: uv.y },
         data
       };
     }
 
-    // ------------------------------------
-    // สร้างรอยไหม้หนึ่งตำแหน่ง
-    // ------------------------------------
-
+    // วาดรอยไหม้
     function stampBurn(hit, amount = 1) {
       if (!hit || !hit.data) return;
 
       const data = hit.data;
       const ctx = data.ctx;
 
-      const size = Number(brushSizeInput.value);
-      const strength = Number(burnStrengthInput.value) / 10;
+      const size = Number(document.querySelector("#brushSize").value);
+      const strength = Number(document.querySelector("#burnStrength").value) / 10;
 
       const x = hit.uv.u * data.width;
       const y = (1 - hit.uv.v) * data.height;
-
       const radius = size * (0.55 + strength * 0.35);
 
       ctx.save();
+      ctx.globalCompositeOperation = "multiply";
+      ctx.globalAlpha = Math.max(0.05, Math.min(1, amount * strength));
 
-      // รอยแดงรอบนอก
       const outer = ctx.createRadialGradient(
         x, y, radius * 0.12,
         x, y, radius
@@ -547,15 +564,11 @@
       outer.addColorStop(0.65, "rgba(190,45,35,0.55)");
       outer.addColorStop(1, "rgba(210,65,45,0)");
 
-      ctx.globalCompositeOperation = "multiply";
-      ctx.globalAlpha = clamp(amount * strength, 0.05, 1);
-
       ctx.fillStyle = outer;
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // บริเวณไหม้ตรงกลาง
       const center = ctx.createRadialGradient(
         x, y, 1,
         x, y, radius * 0.55
@@ -571,8 +584,6 @@
       ctx.arc(x, y, radius * 0.6, 0, Math.PI * 2);
       ctx.fill();
 
-      // จุดสีเข้มเล็ก ๆ ภายในรอยเดียวกัน
-      // ไม่สุ่มสร้างรอยแผลแยกหลายตำแหน่ง
       const dots = [
         [-0.16, -0.08, 0.10],
         [0.12, 0.13, 0.08],
@@ -594,25 +605,17 @@
       }
 
       ctx.restore();
-
       data.texture.needsUpdate = true;
     }
 
-    // ------------------------------------
-    // เพิ่มความเข้มที่รอยเดิม
-    // ------------------------------------
-
+    // เพิ่มความเข้มที่ตำแหน่งเดิมขณะกดค้าง
     function strengthenSameBurn() {
-      if (!lastHit || !paintMode) return;
-
-      // วาดซ้ำที่พิกัดเดิม ไม่สร้างตำแหน่งใหม่
-      stampBurn(lastHit, 0.18);
+      if (lastHit && paintMode && targetVisible) {
+        stampBurn(lastHit, 0.18);
+      }
     }
 
-    // ------------------------------------
-    // วาดต่อเนื่องเมื่อมีการลากนิ้ว
-    // ------------------------------------
-
+    // วาดต่อเนื่องระหว่างลากนิ้ว
     function interpolatePaint(from, to) {
       if (!from || !to || from.data !== to.data) {
         stampBurn(to, 1);
@@ -621,15 +624,10 @@
 
       const dx = to.uv.u - from.uv.u;
       const dy = to.uv.v - from.uv.v;
-
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      const steps = Math.max(
-        1,
-        Math.ceil(distance * to.data.width / 15)
-      );
+      const steps = Math.max(1, Math.ceil(distance * to.data.width / 15));
 
-      // จำกัดจำนวนจุด ป้องกันการกระโดดข้ามโมเดล
       if (steps > 35) {
         stampBurn(to, 1);
         return;
@@ -648,25 +646,6 @@
       }
     }
 
-    // ------------------------------------
-    // การหมุนโมเดล
-    // ------------------------------------
-
-    function rotateModel(delta) {
-      rotationY += delta;
-      rootEl.object3D.rotation.y =
-        THREE.MathUtils.degToRad(rotationY);
-    }
-
-    function setZoom(value) {
-      zoom = clamp(value, 0.18, 0.9);
-      rootEl.object3D.scale.setScalar(zoom);
-    }
-
-    // ------------------------------------
-    // ควบคุมการแตะและลาก
-    // ------------------------------------
-
     function clearHeldTimer() {
       if (heldTimer) {
         clearInterval(heldTimer);
@@ -674,6 +653,18 @@
       }
     }
 
+    function rotateModel(degrees) {
+      rotationY += degrees;
+      rootEl.object3D.rotation.y =
+        THREE.MathUtils.degToRad(rotationY);
+    }
+
+    function setZoom(value) {
+      zoom = Math.max(0.18, Math.min(0.9, value));
+      rootEl.object3D.scale.setScalar(zoom);
+    }
+
+    // รับการสัมผัสบน Canvas
     function onPointerDown(event) {
       if (!targetVisible || !modelLoaded) return;
 
@@ -682,7 +673,6 @@
         y: event.clientY
       });
 
-      // สองนิ้ว = ซูมในโหมดหมุน
       if (pointers.size === 2) {
         clearHeldTimer();
         activePointer = null;
@@ -707,22 +697,13 @@
       };
 
       if (paintMode) {
-        const hit = getModelHit(
-          event.clientX,
-          event.clientY
-        );
-
+        const hit = getModelHit(event.clientX, event.clientY);
         if (!hit) return;
 
-        // หนึ่ง pointerdown สร้างหนึ่งรอยเท่านั้น
         lastHit = hit;
         stampBurn(hit, 1);
 
-        // กดค้างเพิ่มความเข้มตำแหน่งเดิม
-        heldTimer = setInterval(
-          strengthenSameBurn,
-          300
-        );
+        heldTimer = setInterval(strengthenSameBurn, 300);
       }
     }
 
@@ -736,7 +717,6 @@
         y: event.clientY
       });
 
-      // ซูมด้วยสองนิ้ว
       if (pointers.size === 2 && !paintMode) {
         const values = [...pointers.values()];
 
@@ -746,29 +726,19 @@
         );
 
         if (pinchStartDistance > 0) {
-          setZoom(
-            pinchStartZoom * distance / pinchStartDistance
-          );
+          setZoom(pinchStartZoom * distance / pinchStartDistance);
         }
-
         return;
       }
 
-      if (
-        !activePointer ||
-        activePointer.id !== event.pointerId
-      ) {
+      if (!activePointer || activePointer.id !== event.pointerId) {
         return;
       }
 
       const dx = event.clientX - previous.x;
-      const dy = event.clientY - previous.y;
 
       if (paintMode) {
-        const currentHit = getModelHit(
-          event.clientX,
-          event.clientY
-        );
+        const currentHit = getModelHit(event.clientX, event.clientY);
 
         if (currentHit) {
           if (lastHit) {
@@ -790,8 +760,7 @@
     function onPointerUp(event) {
       pointers.delete(event.pointerId);
 
-      if (activePointer &&
-          activePointer.id === event.pointerId) {
+      if (activePointer && activePointer.id === event.pointerId) {
         activePointer = null;
       }
 
@@ -804,57 +773,29 @@
     }
 
     function attachPointerEvents() {
-      const canvas = getCanvas();
-      if (!canvas) return;
+      const canvas = sceneEl.canvas;
+      if (!canvas || canvas.dataset.paintEventsAttached) return;
 
+      canvas.dataset.paintEventsAttached = "true";
       canvas.style.touchAction = "none";
 
-      canvas.addEventListener(
-        "pointerdown",
-        onPointerDown
-      );
-
-      canvas.addEventListener(
-        "pointermove",
-        onPointerMove
-      );
-
-      canvas.addEventListener(
-        "pointerup",
-        onPointerUp
-      );
-
-      canvas.addEventListener(
-        "pointercancel",
-        onPointerUp
-      );
-
-      canvas.addEventListener(
-        "lostpointercapture",
-        onPointerUp
-      );
+      canvas.addEventListener("pointerdown", onPointerDown);
+      canvas.addEventListener("pointermove", onPointerMove);
+      canvas.addEventListener("pointerup", onPointerUp);
+      canvas.addEventListener("pointercancel", onPointerUp);
+      canvas.addEventListener("lostpointercapture", onPointerUp);
     }
 
-    // ------------------------------------
-    // ลบรอยไหม้ทั้งหมด
-    // ------------------------------------
-
+    // ลบรอยแผลทั้งหมด
     function clearBurns() {
       for (const item of paintMaterials) {
         const data = item.data;
 
-        data.ctx.clearRect(
-          0, 0, data.width, data.height
-        );
+        data.ctx.clearRect(0, 0, data.width, data.height);
 
         const image = data.originalMap.image;
-
         data.ctx.drawImage(
-          image,
-          0,
-          0,
-          data.width,
-          data.height
+          image, 0, 0, data.width, data.height
         );
 
         data.texture.needsUpdate = true;
@@ -863,158 +804,92 @@
       setStatus("ลบรอยแผลแล้ว");
     }
 
-    // ------------------------------------
     // ปุ่มควบคุม
-    // ------------------------------------
+    document.querySelector("#rotateMode").addEventListener("click", () => {
+      setMode(false);
+    });
 
-    document.querySelector("#rotateMode")
-      .addEventListener("click", () => {
-        setMode(false);
-      });
+    document.querySelector("#paintMode").addEventListener("click", () => {
+      setMode(true);
+    });
 
-    document.querySelector("#paintMode")
-      .addEventListener("click", () => {
-        setMode(true);
-      });
+    document.querySelector("#zoomIn").addEventListener("click", () => {
+      setZoom(zoom + 0.05);
+    });
 
-    document.querySelector("#zoomIn")
-      .addEventListener("click", () => {
-        setZoom(zoom + 0.05);
-      });
+    document.querySelector("#zoomOut").addEventListener("click", () => {
+      setZoom(zoom - 0.05);
+    });
 
-    document.querySelector("#zoomOut")
-      .addEventListener("click", () => {
-        setZoom(zoom - 0.05);
-      });
+    document.querySelector("#rotateLeft").addEventListener("click", () => {
+      rotateModel(-10);
+    });
 
-    document.querySelector("#rotateLeft")
-      .addEventListener("click", () => {
-        rotateModel(-10);
-      });
+    document.querySelector("#rotateRight").addEventListener("click", () => {
+      rotateModel(10);
+    });
 
-    document.querySelector("#rotateRight")
-      .addEventListener("click", () => {
-        rotateModel(10);
-      });
+    document.querySelector("#resetView").addEventListener("click", () => {
+      rotationY = 0;
+      rootEl.object3D.rotation.set(
+        THREE.MathUtils.degToRad(90), 0, 0
+      );
+      setZoom(0.42);
+      setStatus("คืนมุมมองแล้ว");
+    });
 
-    document.querySelector("#resetView")
-      .addEventListener("click", () => {
-        rotationY = 0;
+    document.querySelector("#clearBurns").addEventListener("click", clearBurns);
 
-        rootEl.object3D.rotation.set(
-          THREE.MathUtils.degToRad(90),
-          0,
-          0
-        );
+    // ผูกปุ่มเริ่มด้วย click และ pointerup
+    // ป้องกันการแตะแล้วไม่มีการตอบสนอง
+    startButton.addEventListener("click", startCamera);
 
-        setZoom(0.42);
-        setStatus("คืนมุมมองแล้ว");
-      });
-
-    document.querySelector("#clearBurns")
-      .addEventListener("click", clearBurns);
-
-    // ------------------------------------
-    // เริ่มและหยุดกล้อง
-    // ------------------------------------
-
-    async function startCamera() {
-      try {
-        setStatus("กำลังเปิดกล้อง...");
-
-        const system =
-          sceneEl.systems["mindar-image-system"];
-
-        await system.start();
-
-        cameraStarted = true;
-        startScreen.classList.add("hidden");
-
-        setStatus("กำลังค้นหาโปสเตอร์");
-      } catch (error) {
-        console.error(error);
-
-        setStatus("เปิดกล้องไม่สำเร็จ");
-
-        alert(
-          "ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตการใช้กล้องและเปิดเว็บผ่าน HTTPS"
-        );
-      }
-    }
-
-    async function stopCamera() {
-      try {
-        const system =
-          sceneEl.systems["mindar-image-system"];
-
-        if (system && cameraStarted) {
-          await system.stop();
-        }
-      } catch (error) {
-        console.error(error);
-      }
-
-      cameraStarted = false;
-      targetVisible = false;
-
-      startScreen.classList.remove("hidden");
-      setStatus("ปิดกล้องแล้ว");
-    }
-
-    document.querySelector("#startButton")
-      .addEventListener("click", startCamera);
-
-    document.querySelector("#stopButton")
-      .addEventListener("click", stopCamera);
-
-    // ------------------------------------
     // โหลดโมเดล
-    // ------------------------------------
-
     modelEl.addEventListener("model-loaded", () => {
       modelLoaded = true;
 
-      preparePaintTextures();
-
-      setStatus("โมเดลพร้อมใช้งาน");
-
-      attachPointerEvents();
+      try {
+        preparePaintTextures();
+        attachPointerEvents();
+        setStatus("โมเดลพร้อมใช้งาน");
+      } catch (error) {
+        console.error("เตรียมระบบวาดแผลไม่สำเร็จ:", error);
+        setStatus("เกิดข้อผิดพลาดในการเตรียมโมเดล");
+      }
     });
 
     modelEl.addEventListener("model-error", (event) => {
-      console.error("Model error:", event);
-
+      console.error("Model loading error:", event);
       setStatus("โหลดโมเดลไม่สำเร็จ");
     });
 
-    // ------------------------------------
     // ตรวจจับโปสเตอร์
-    // ------------------------------------
-
-    const targetEl =
-      document.querySelector("[mindar-image-target]");
+    const targetEl = document.querySelector("[mindar-image-target]");
 
     targetEl.addEventListener("targetFound", () => {
       targetVisible = true;
-
       setStatus("พบโปสเตอร์แล้ว");
       hintEl.textContent = "เลือกโหมดหมุนหรือวาดแผล";
     });
 
     targetEl.addEventListener("targetLost", () => {
       targetVisible = false;
-
       clearHeldTimer();
       activePointer = null;
       lastHit = null;
       pointers.clear();
 
       setStatus("ไม่พบโปสเตอร์");
-      hintEl.textContent = "สแกนโปสเตอร์เพื่อแสดงโมเดล";
+      hintEl.textContent = "นำกล้องกลับไปส่องโปสเตอร์";
     });
 
     // เริ่มต้น
     setMode(false);
+
+    // ตรวจสอบว่าปุ่มถูกสร้างและพร้อมรับการแตะ
+    if (!startButton) {
+      console.error("ไม่พบปุ่มเริ่มสแกน");
+    }
 
   })();
   </script>
